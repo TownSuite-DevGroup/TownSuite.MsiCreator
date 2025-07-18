@@ -13,6 +13,7 @@ namespace TownSuite.MsiCreator
         public string ProductName { get; set; } = string.Empty;
         public string ProductVersion { get; set; } = string.Empty;
         public string SrcBinDirectory { get; set; } = string.Empty;
+        public string SrcZip { get; set; } = string.Empty;
         public string OutputDirectory { get; set; } = string.Empty;
         public string MainExecutable { get; set; } = string.Empty;
         public string ProductGuid { get; set; } = string.Empty;
@@ -25,7 +26,7 @@ namespace TownSuite.MsiCreator
             if (string.IsNullOrWhiteSpace(CompanyName) ||
                 string.IsNullOrWhiteSpace(ProductName) ||
                 string.IsNullOrWhiteSpace(ProductVersion) ||
-                string.IsNullOrWhiteSpace(SrcBinDirectory) ||
+                (string.IsNullOrWhiteSpace(SrcBinDirectory) && string.IsNullOrWhiteSpace(SrcZip)) ||
                 string.IsNullOrWhiteSpace(OutputDirectory) ||
                 string.IsNullOrWhiteSpace(MainExecutable) ||
                 string.IsNullOrWhiteSpace(ProductGuid) ||

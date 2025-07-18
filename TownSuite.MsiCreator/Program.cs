@@ -27,6 +27,10 @@ for (int i = 0; i< args.Length; i++)
     {
         config.ProductVersion = args[++i];
     }
+    else if (string.Equals(args[i], "-SrcZip", StringComparison.OrdinalIgnoreCase))
+    {
+        config.SrcZip = args[++i];
+    }
     else if (string.Equals(args[i], "-SrcBinDirectory", StringComparison.OrdinalIgnoreCase))
     {
         config.SrcBinDirectory = args[++i];
@@ -84,116 +88,32 @@ if (!config.IsValid())
     Environment.Exit(1);
 }
 
-
-// Usage:
-var rootDir = BuildDir(config.SrcBinDirectory, config.SrcBinDirectory);
-
-var project = new Project(config.ProductName,
-                          new Dir(@$"%ProgramFiles%\{config.CompanyName}\{config.ProductName}",
-                            rootDir
-                            )
-                       )
+try
 {
-    Id = Guid.NewGuid().ToString(),
-    OutDir = config.OutputDirectory,
-    GUID = Guid.Parse(config.ProductGuid),
-    Version = Version.Parse(config.ProductVersion),
-    UI = WUI.WixUI_Minimal,
-    Platform = config.Platform,
-    Scope = InstallScope.perUserOrMachine
-};
+    if (!String.IsNullOrWhiteSpace(config.SrcZip) && System.IO.File.Exists(config.SrcZip))
+    {
+        // extract the zip to a temporary directory and set the srcBinDirectory to that directory
+        var tempDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        System.IO.Directory.CreateDirectory(tempDir);
+        System.IO.Compression.ZipFile.ExtractToDirectory(config.SrcZip, tempDir);
+        config.SrcBinDirectory = tempDir;
+    }
 
-project.ControlPanelInfo.Manufacturer = config.CompanyName;
-
-if (!string.IsNullOrEmpty(config.LicenseFile) && System.IO.File.Exists(config.LicenseFile))
-{
-    project.LicenceFile = config.LicenseFile;
+    var msiBuilder = new MsiBuilder();
+    msiBuilder.Build(config);
 }
-
-string wixbin = GetWixBinDir();
-Environment.SetEnvironmentVariable("WIXSHARP_WIXDIR", wixbin, EnvironmentVariableTarget.Process);
-Environment.SetEnvironmentVariable("WIXSHARP_DIR", Environment.CurrentDirectory, EnvironmentVariableTarget.Process);
-
-if (config.OutputType.Equals("msi", StringComparison.OrdinalIgnoreCase))
+finally
 {
-    project.OutFileName = $"{config.ProductName}_{config.ProductVersion}.msi";
-    string msiFilepath = Compiler.BuildMsi(project);
-    Console.WriteLine(msiFilepath);
-}
-else if (config.OutputType.Equals("wxs", StringComparison.OrdinalIgnoreCase))
-{
-    project.OutFileName = $"{config.ProductName}_{config.ProductVersion}.wxs";
-    string wxsFilepath = Compiler.BuildWxs(project);
-    Console.WriteLine(wxsFilepath);
-}
-
-string GetWixBinDir()
-{
-    string rval = System.Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-    if ((rval == null) || (rval == ""))
+       // Clean up temporary directory if it was created
+    if (!string.IsNullOrWhiteSpace(config.SrcZip) && System.IO.Directory.Exists(config.SrcBinDirectory))
     {
-        rval = System.Environment.GetEnvironmentVariable("ProgramFiles");
+        try
+        {
+            System.IO.Directory.Delete(config.SrcBinDirectory, true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cleaning up temporary directory: {ex.Message}");
+        }
     }
-    if ((rval == null) || (rval == ""))
-    {
-        rval = @"C:\Program Files";
-    }
-
-    if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.11", "bin")))
-    {
-        rval = System.IO.Path.Combine(rval, "WiX Toolset v3.11", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.10", "bin")))
-    {
-        // Attempt to use version 3.10 new directory
-        rval = System.IO.Path.Combine(rval, "WiX Toolset v3.10", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.9", "bin")))
-    {
-        // Attempt to use version 3.9 new directory
-        rval = System.IO.Path.Combine(rval, "WiX Toolset v3.9", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.8", "bin")))
-    {
-        // Attempt to use version 3.8 new directory
-        rval = System.IO.Path.Combine(rval, "WiX Toolset v3.8", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.7", "bin")))
-    {
-        // Attempt to use version 3.7 new directory
-        rval = System.IO.Path.Combine(rval, "WiX Toolset v3.7", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.6", "bin")))
-    {
-        // Attempt to use version 3.6 new directory
-        rval = System.IO.Path.Combine(rval, "WiX Toolset v3.6", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "Windows Installer XML v3.6", "bin")))
-    {
-        // Attempt to use version 3.6
-        rval = System.IO.Path.Combine(rval, "Windows Installer XML v3.6", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "Windows Installer XML v3.5", "bin")))
-    {
-        // Attempt to use version 3.5
-        rval = System.IO.Path.Combine(rval, "Windows Installer XML v3.5", "bin");
-    }
-    else
-    {
-        // Fall back to version 3
-        rval = Path.Combine(rval, "Windows Installer XML v3", "bin");
-    }
-
-    return rval;
-}
-
-Dir BuildDir(string baseDir, string currentDir)
-{
-    var subDirs = Directory.GetDirectories(currentDir);
-    var entities = new List<WixEntity>();
-    entities.AddRange(Directory.GetFiles(currentDir).Select(f => new WixSharp.File(f)));
-
-    return new Dir(Path.GetFileName(currentDir),
-        entities.Concat(subDirs.Select(d => BuildDir(baseDir, d))).ToArray()
-        );
 }
