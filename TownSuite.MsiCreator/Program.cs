@@ -17,39 +17,39 @@ for (int i = 0; i< args.Length; i++)
 {
     if (string.Equals(args[i], "-CompanyName", StringComparison.OrdinalIgnoreCase))
     {
-        config.CompanyName = args[++i];
+        config.CompanyName = args[i + 1];
     }
     else if (string.Equals(args[i], "-Product", StringComparison.OrdinalIgnoreCase))
     {
-        config.ProductName = args[++i];
+        config.ProductName = args[i + 1];
     }
     else if (string.Equals(args[i], "-Version", StringComparison.OrdinalIgnoreCase))
     {
-        config.ProductVersion = args[++i];
+        config.ProductVersion = args[i + 1];
     }
     else if (string.Equals(args[i], "-SrcZip", StringComparison.OrdinalIgnoreCase))
     {
-        config.SrcZip = args[++i];
+        config.SrcZip = args[i + 1];
     }
     else if (string.Equals(args[i], "-SrcBinDirectory", StringComparison.OrdinalIgnoreCase))
     {
-        config.SrcBinDirectory = args[++i];
+        config.SrcBinDirectory = args[i + 1];
     }
     else if (string.Equals(args[i], "-OutputDirectory", StringComparison.OrdinalIgnoreCase))
     {
-        config.OutputDirectory = args[++i];
+        config.OutputDirectory = args[i + 1];
     }
     else if (string.Equals(args[i], "-MainExecutable", StringComparison.OrdinalIgnoreCase))
     {
-        config.MainExecutable = args[++i];
+        config.MainExecutable = args[i + 1];
     }
     else if (string.Equals(args[i], "-ProductGuid", StringComparison.OrdinalIgnoreCase))
     {
-        config.ProductGuid = args[++i];
+        config.ProductGuid = args[i + 1];
     }
     else if (string.Equals(args[i], "-Platform", StringComparison.OrdinalIgnoreCase))
     {
-        config.Platform = args[++i].ToLower() switch
+        config.Platform = args[i + 1].ToLower() switch
         {
             "x64" => Platform.x64,
             "x86" => Platform.x86,
@@ -59,11 +59,11 @@ for (int i = 0; i< args.Length; i++)
     }
     else if (string.Equals(args[i], "-LicenseFile", StringComparison.OrdinalIgnoreCase))
     {
-        config.LicenseFile = args[++i];
+        config.LicenseFile = args[i + 1];
     }
     else if (string.Equals(args[i], "-OutputType", StringComparison.OrdinalIgnoreCase))
     {
-        config.OutputType = args[++i].ToLower();
+        config.OutputType = args[i + 1].ToLower();
         if (config.OutputType != "msi" &&  config.OutputType != "wxs")
         {
             Console.WriteLine("Invalid output type specified. Use 'msi' or 'wxs'.");
@@ -74,11 +74,6 @@ for (int i = 0; i< args.Length; i++)
     {
         Console.WriteLine("Usage: MsiCreator.exe -CompanyName <CompanyName> -Product <ProductName> -Version <ProductVersion> -SrcBinDirectory <SourceBinaryDirectory> -OutputDirectory <OutputDirectory> -MainExecutable <MainExecutablePath> -ProductGuid <ProductGuid> [-Platform <x64|x86|arm64>] [-LicenseFile <LicenseFilePath>]");
         Environment.Exit(0);
-    }
-    else
-    {
-        Console.Write($"Unknown argument: {args[i]}");
-        Environment.Exit(1);
     }
 }
 

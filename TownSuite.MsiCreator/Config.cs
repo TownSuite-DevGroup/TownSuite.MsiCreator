@@ -30,7 +30,6 @@ namespace TownSuite.MsiCreator
                 string.IsNullOrWhiteSpace(OutputDirectory) ||
                 string.IsNullOrWhiteSpace(MainExecutable) ||
                 string.IsNullOrWhiteSpace(ProductGuid) ||
-                string.IsNullOrWhiteSpace(LicenseFile) ||
                 (OutputType != "msi" && OutputType != "wxs"))
             {
                 return false;
