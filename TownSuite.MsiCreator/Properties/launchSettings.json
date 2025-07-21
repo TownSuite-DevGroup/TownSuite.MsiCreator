@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TownSuite.MsiCreator": {
+      "commandName": "Project",
+      "commandLineArgs": "-CompanyName \"TownSuite\" -Product \"Test Product\" -Version \"1.1.1\" -SrcBinDirectory \"C:\\TownSuite\\4.86.111\\x64\" -OutputDirectory \"C:\\Users\\peter\\source\\repos\\random-stuff\" -MainExecutable \"TownSuite.exe\" -ProductGuid \"2a79d5e7-a78f-40b8-8cdc-b1e41f69e45c\" -Platform \"x64\""
+    }
+  }
+}
