@@ -94,8 +94,8 @@ try
         config.SrcBinDirectory = tempDir;
     }
 
-    var msiBuilder = new MsiBuilder();
-    msiBuilder.Build(config);
+    var msiBuilder = new MsiBuilder(config);
+    msiBuilder.Build();
 }
 finally
 {

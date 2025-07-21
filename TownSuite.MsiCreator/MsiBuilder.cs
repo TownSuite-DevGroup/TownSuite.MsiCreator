@@ -10,121 +10,70 @@ namespace TownSuite.MsiCreator
 {
     internal class MsiBuilder
     {
-
-        public void Build(Config config)
+        private readonly Config _config;
+        public MsiBuilder(Config config)
         {
-            var rootDir = BuildDir(config.SrcBinDirectory, config.SrcBinDirectory);
-
-            var project = new Project(config.ProductName,
-                                      new Dir(@$"%ProgramFiles%\{config.CompanyName}\{config.ProductName}",
-                                        rootDir
+            _config = config;
+        }
+        public void Build()
+        {
+            var rootDir = BuildDir(_config.SrcBinDirectory);
+            
+            var project = new Project(_config.ProductName, 
+                                      new Dir(@$"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}",
+                                      rootDir
                                         )
                                    )
             {
                 Id = Guid.NewGuid().ToString(),
-                OutDir = config.OutputDirectory,
-                GUID = Guid.Parse(config.ProductGuid),
-                Version = Version.Parse(config.ProductVersion),
+                OutDir = _config.OutputDirectory,
+                GUID = Guid.Parse(_config.ProductGuid),
+                Version = Version.Parse(_config.ProductVersion),
                 UI = WUI.WixUI_Minimal,
-                Platform = config.Platform,
+                Platform = _config.Platform,
                 Scope = InstallScope.perUserOrMachine
             };
 
-            project.ControlPanelInfo.Manufacturer = config.CompanyName;
+         
+            
+            project.ControlPanelInfo.Manufacturer = _config.CompanyName;
 
-            if (!string.IsNullOrEmpty(config.LicenseFile) && System.IO.File.Exists(config.LicenseFile))
+            if (!string.IsNullOrEmpty(_config.LicenseFile) && System.IO.File.Exists(_config.LicenseFile))
             {
-                project.LicenceFile = config.LicenseFile;
+                project.LicenceFile = _config.LicenseFile;
             }
 
-            string wixbin = GetWixBinDir();
-            Environment.SetEnvironmentVariable("WIXSHARP_WIXDIR", wixbin, EnvironmentVariableTarget.Process);
-            Environment.SetEnvironmentVariable("WIXSHARP_DIR", Environment.CurrentDirectory, EnvironmentVariableTarget.Process);
-
-            if (config.OutputType.Equals("msi", StringComparison.OrdinalIgnoreCase))
+            if (_config.OutputType.Equals("msi", StringComparison.OrdinalIgnoreCase))
             {
-                project.OutFileName = $"{config.ProductName}_{config.ProductVersion}.msi";
+                project.OutFileName = $"{_config.ProductName}_{_config.ProductVersion}.msi";
                 string msiFilepath = Compiler.BuildMsi(project);
                 Console.WriteLine(msiFilepath);
             }
-            else if (config.OutputType.Equals("wxs", StringComparison.OrdinalIgnoreCase))
+            else if (_config.OutputType.Equals("wxs", StringComparison.OrdinalIgnoreCase))
             {
-                project.OutFileName = $"{config.ProductName}_{config.ProductVersion}.wxs";
+                project.OutFileName = $"{_config.ProductName}_{_config.ProductVersion}.wxs";
                 string wxsFilepath = Compiler.BuildWxs(project);
                 Console.WriteLine(wxsFilepath);
             }
         }
 
-string GetWixBinDir()
-{
-    string rval = System.Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-    if ((rval == null) || (rval == ""))
-    {
-        rval = System.Environment.GetEnvironmentVariable("ProgramFiles");
-    }
-    if ((rval == null) || (rval == ""))
-    {
-        rval = @"C:\Program Files";
-    }
+        Dir BuildDir(string currentDir)
+        {
+            var subDirs = Directory.GetDirectories(currentDir);
+            
+            // long paths (if enabled) by prefixing with \\?\
+            // see https://github.com/wixtoolset/issues/issues/9115
+            string fullDirPath = @"\\?\" + Path.GetFullPath(currentDir);
 
-    if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.11", "bin")))
-    {
-        rval = System.IO.Path.Combine(rval, "WiX Toolset v3.11", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.10", "bin")))
-    {
-        // Attempt to use version 3.10 new directory
-        rval = System.IO.Path.Combine(rval, "WiX Toolset v3.10", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.9", "bin")))
-    {
-        // Attempt to use version 3.9 new directory
-        rval = System.IO.Path.Combine(rval, "WiX Toolset v3.9", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.8", "bin")))
-    {
-        // Attempt to use version 3.8 new directory
-        rval = System.IO.Path.Combine(rval, "WiX Toolset v3.8", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.7", "bin")))
-    {
-        // Attempt to use version 3.7 new directory
-        rval = System.IO.Path.Combine(rval, "WiX Toolset v3.7", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.6", "bin")))
-    {
-        // Attempt to use version 3.6 new directory
-        rval = System.IO.Path.Combine(rval, "WiX Toolset v3.6", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "Windows Installer XML v3.6", "bin")))
-    {
-        // Attempt to use version 3.6
-        rval = System.IO.Path.Combine(rval, "Windows Installer XML v3.6", "bin");
-    }
-    else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "Windows Installer XML v3.5", "bin")))
-    {
-        // Attempt to use version 3.5
-        rval = System.IO.Path.Combine(rval, "Windows Installer XML v3.5", "bin");
-    }
-    else
-    {
-        // Fall back to version 3
-        rval = Path.Combine(rval, "Windows Installer XML v3", "bin");
-    }
+            var entities = new List<WixEntity>
+            {
+                new DirFiles(Path.Combine(fullDirPath, "*.*"))
+            };
 
-    return rval;
-}
+            entities.AddRange(subDirs.Select(d => BuildDir(d)));
 
-Dir BuildDir(string baseDir, string currentDir)
-{
-    var subDirs = Directory.GetDirectories(currentDir);
-    var entities = new List<WixEntity>();
-    entities.AddRange(Directory.GetFiles(currentDir).Select(f => new WixSharp.File(f)));
-
-    return new Dir(Path.GetFileName(currentDir),
-        entities.Concat(subDirs.Select(d => BuildDir(baseDir, d))).ToArray()
-        );
-}
+            return new Dir(Path.GetFileName(currentDir), entities.ToArray());
+        }
 
     }
 }
