@@ -18,12 +18,13 @@ namespace TownSuite.MsiCreator
         public string MainExecutable { get; set; } = string.Empty;
         public string ProductGuid { get; set; } = string.Empty;
         public Platform Platform { get; set; } = Platform.x64; // Default platform
-        public string LicenseFile { get; set; } = string.Empty;
+        public string LicenseFile { get; set; } = "LicenseTemplate.rtf"; // Default license file
         public string OutputType { get; set; } = "msi"; // Default output type
 
         public bool IsValid()
         {
             if (string.IsNullOrWhiteSpace(CompanyName) ||
+                string.IsNullOrWhiteSpace(LicenseFile) ||
                 string.IsNullOrWhiteSpace(ProductName) ||
                 string.IsNullOrWhiteSpace(ProductVersion) ||
                 (string.IsNullOrWhiteSpace(SrcBinDirectory) && string.IsNullOrWhiteSpace(SrcZip)) ||

@@ -11,37 +11,34 @@ namespace TownSuite.MsiCreator
     internal class MsiBuilder
     {
         private readonly Config _config;
+
         public MsiBuilder(Config config)
         {
             _config = config;
         }
+
         public void Build()
         {
             var rootDir = BuildDir(_config.SrcBinDirectory);
-            
-            var project = new Project(_config.ProductName, 
-                                      new Dir(@$"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}",
-                                      rootDir
-                                        )
-                                   )
+
+            var project = new Project(_config.ProductName,
+                new Dir(@$"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}",
+                    rootDir
+                )
+            )
             {
                 Id = Guid.NewGuid().ToString(),
                 OutDir = _config.OutputDirectory,
                 GUID = Guid.Parse(_config.ProductGuid),
                 Version = Version.Parse(_config.ProductVersion),
-                UI = WUI.WixUI_Minimal,
+                UI = WUI.WixUI_InstallDir,
                 Platform = _config.Platform,
                 Scope = InstallScope.perUserOrMachine
             };
 
-         
-            
             project.ControlPanelInfo.Manufacturer = _config.CompanyName;
-
-            if (!string.IsNullOrEmpty(_config.LicenseFile) && System.IO.File.Exists(_config.LicenseFile))
-            {
-                project.LicenceFile = _config.LicenseFile;
-            }
+            
+            project.LicenceFile = _config.LicenseFile;
 
             if (_config.OutputType.Equals("msi", StringComparison.OrdinalIgnoreCase))
             {
@@ -60,7 +57,7 @@ namespace TownSuite.MsiCreator
         Dir BuildDir(string currentDir)
         {
             var subDirs = Directory.GetDirectories(currentDir);
-            
+
             // long paths (if enabled) by prefixing with \\?\
             // see https://github.com/wixtoolset/issues/issues/9115
             string fullDirPath = @"\\?\" + Path.GetFullPath(currentDir);
@@ -74,6 +71,5 @@ namespace TownSuite.MsiCreator
 
             return new Dir(Path.GetFileName(currentDir), entities.ToArray());
         }
-
     }
 }
