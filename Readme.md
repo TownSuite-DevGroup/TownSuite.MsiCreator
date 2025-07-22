@@ -12,3 +12,14 @@ setx PATH "%PATH%;C:\Users\<USERNAME>\.dotnet\tools"
 
 A zip file, -SrcZip, can be used as a src instead of a -SrcBinDirectory.
 
+
+# MSI Info
+
+Install as a non admin the filepath will be
+
+- C:\Users\[User]\AppData\Local\Programs\[CompanyName]\[Product]
+
+
+Install as an admin computer wide and the program will be installed be
+
+- C:\Program Files\[CompanyName]\[Product]
