@@ -17,7 +17,23 @@ namespace TownSuite.MsiCreator
 
             var project = new ManagedProject(_config.ProductName,
                 new Dir(@$"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}",
-                    rootDir
+                    rootDir,
+                    new WixSharp.File(Path.Combine(_config.SrcBinDirectory, _config.MainExecutable))
+                    {
+                        Shortcuts = new[]
+                        {
+                            new FileShortcut(_config.ProductName, "%DesktopFolder%")
+                            {
+                                WorkingDirectory = "INSTALLDIR",
+                                Description = $"{_config.CompanyName} - {_config.ProductName}",
+                            },
+                            new FileShortcut(_config.ProductName, "%ProgramMenuFolder%")
+                            {
+                                WorkingDirectory = "INSTALLDIR",
+                                Description = $"{_config.CompanyName} - {_config.ProductName}",
+                            }
+                        }
+                    }
                 )
             )
             {
