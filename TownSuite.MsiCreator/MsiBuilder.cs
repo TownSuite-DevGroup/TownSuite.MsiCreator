@@ -13,7 +13,7 @@ namespace TownSuite.MsiCreator
 
         public void Build()
         {
-            var rootDir = BuildDir(_config.SrcBinDirectory);
+            var rootDir = BuildDir(_config.SrcBinDirectory, true);
 
             var project = new ManagedProject(_config.ProductName,
                 new Dir(@$"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}",
@@ -64,23 +64,30 @@ namespace TownSuite.MsiCreator
                 Console.WriteLine(wxsFilepath);
             }
         }
-
-        Dir BuildDir(string currentDir)
+        
+        Dir BuildDir(string currentDir, bool isRoot = false)
         {
             var subDirs = Directory.GetDirectories(currentDir);
 
-            // long paths (if enabled) by prefixing with \\?\
-            // see https://github.com/wixtoolset/issues/issues/9115
             string fullDirPath = @"\\?\" + Path.GetFullPath(currentDir);
 
-            var entities = new List<WixEntity>
+            var entities = new List<WixEntity>();
+
+            if (isRoot)
             {
-                new DirFiles(Path.Combine(fullDirPath, "*.*"))
-            };
-
-            entities.AddRange(subDirs.Select(d => BuildDir(d)));
-
-            return new Dir(Path.GetFileName(currentDir), entities.ToArray());
+                // Add files directly to INSTALLDIR
+                entities.Add(new DirFiles(Path.Combine(fullDirPath, "*.*")));
+                // Add subdirectories as subfolders
+                entities.AddRange(subDirs.Select(d => BuildDir(d)));
+                return new Dir(".", entities.ToArray());
+            }
+            else
+            {
+                // Add files and subdirectories normally
+                entities.Add(new DirFiles(Path.Combine(fullDirPath, "*.*")));
+                entities.AddRange(subDirs.Select(d => BuildDir(d)));
+                return new Dir(Path.GetFileName(currentDir), entities.ToArray());
+            }
         }
     }
 }
