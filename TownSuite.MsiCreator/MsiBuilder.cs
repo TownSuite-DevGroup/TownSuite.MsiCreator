@@ -39,16 +39,15 @@ namespace TownSuite.MsiCreator
             project.ControlPanelInfo.Manufacturer = _config.CompanyName;
             
             project.LicenceFile = _config.LicenseFile;
-
+            project.OutFileName = $"{_config.ProductName}_{_config.ProductVersion}";
+            
             if (_config.OutputType.Equals("msi", StringComparison.OrdinalIgnoreCase))
             {
-                project.OutFileName = $"{_config.ProductName}_{_config.ProductVersion}.msi";
                 string msiFilepath = Compiler.BuildMsi(project);
                 Console.WriteLine(msiFilepath);
             }
             else if (_config.OutputType.Equals("wxs", StringComparison.OrdinalIgnoreCase))
             {
-                project.OutFileName = $"{_config.ProductName}_{_config.ProductVersion}.wxs";
                 string wxsFilepath = Compiler.BuildWxs(project);
                 Console.WriteLine(wxsFilepath);
             }
