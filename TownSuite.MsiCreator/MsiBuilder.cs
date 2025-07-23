@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TownSuite.MsiCreator;
-using WixSharp;
+﻿using WixSharp;
 
 namespace TownSuite.MsiCreator
 {
@@ -21,7 +15,7 @@ namespace TownSuite.MsiCreator
         {
             var rootDir = BuildDir(_config.SrcBinDirectory);
 
-            var project = new Project(_config.ProductName,
+            var project = new ManagedProject(_config.ProductName,
                 new Dir(@$"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}",
                     rootDir
                 )
@@ -33,14 +27,16 @@ namespace TownSuite.MsiCreator
                 Version = Version.Parse(_config.ProductVersion),
                 UI = WUI.WixUI_InstallDir,
                 Platform = _config.Platform,
-                Scope = InstallScope.perUserOrMachine
+                Scope = InstallScope.perUserOrMachine,
             };
 
             project.ControlPanelInfo.Manufacturer = _config.CompanyName;
-            
+
             project.LicenceFile = _config.LicenseFile;
-            project.OutFileName = $"{_config.ProductName}_{_config.ProductVersion}";
-            
+
+            project.OutFileName =
+                $"{_config.ProductName}_{_config.ProductVersion}"; // Set InstallScope based on ALLUSERS property
+
             if (_config.OutputType.Equals("msi", StringComparison.OrdinalIgnoreCase))
             {
                 string msiFilepath = Compiler.BuildMsi(project);
