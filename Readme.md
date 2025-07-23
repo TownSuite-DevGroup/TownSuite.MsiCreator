@@ -15,11 +15,28 @@ A zip file, -SrcZip, can be used as a src instead of a -SrcBinDirectory.
 
 # MSI Info
 
+The msi by default will install per user.
+
+## Install Per User
+
+Users can double click the msi or run it via powershell.
+
+```powershell
+msiexec /i "MyProduct.msi"
+```
+
 Install as a non admin the filepath will be
 
 - C:\Users\[User]\AppData\Local\Programs\[CompanyName]\[Product]
 
 
-Install as an admin computer wide and the program will be installed be
+## Install Per Machine
 
 - C:\Program Files\[CompanyName]\[Product]
+
+
+To install the application machine-wide:
+```powershell
+msiexec /i "MyProduct.msi" ALLUSERS=1
+```
+
