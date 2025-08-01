@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <PackAsTool>false</PackAsTool>
+    <ToolCommandName>townsuite-msicreator</ToolCommandName>
   </PropertyGroup>
 
   <ItemGroup>
