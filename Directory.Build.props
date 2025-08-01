@@ -1,0 +1,14 @@
+<Project>
+  <!-- Once everything is net8.0 this can be used to replace the other various props files -->
+
+    <PropertyGroup>
+        <AssemblyVersion>1.0.1</AssemblyVersion>
+        <FileVersion>1.0.1</FileVersion>
+        <Version>1.0.1</Version>
+        <Deterministic>true</Deterministic>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <Company>TownSuite Municipal Software Inc.</Company>
+        <Product>TownSuite MSI Creator CLI Tool</Product>
+        <Copyright>Copyright © TownSuite Municipal Software Inc. 2025</Copyright>
+    </PropertyGroup>
+</Project>
