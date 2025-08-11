@@ -47,6 +47,16 @@ namespace TownSuite.MsiCreator
             };
 
             project.ControlPanelInfo.Manufacturer = _config.CompanyName;
+            project.MajorUpgradeStrategy = WixSharp.MajorUpgradeStrategy.Default;
+
+            if (!string.IsNullOrWhiteSpace(_config.UrlInfoAbout))
+            {
+                project.ControlPanelInfo.UrlInfoAbout = _config.UrlInfoAbout;
+            }
+            if (!string.IsNullOrWhiteSpace(_config.UrlUpdateInfo))
+            {
+                project.ControlPanelInfo.UrlUpdateInfo = _config.UrlUpdateInfo;
+            }
 
             project.LicenceFile = _config.LicenseFile;
 

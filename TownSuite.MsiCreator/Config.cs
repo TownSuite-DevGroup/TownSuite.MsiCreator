@@ -20,6 +20,8 @@ namespace TownSuite.MsiCreator
         public Platform Platform { get; set; } = Platform.x64; // Default platform
         public string LicenseFile { get; set; } = "LicenseTemplate.rtf"; // Default license file
         public string OutputType { get; set; } = "msi"; // Default output type
+        public string UrlInfoAbout { get; set; } = string.Empty;
+        public string UrlUpdateInfo { get; set; } = string.Empty;
 
         public bool IsValid()
         {
