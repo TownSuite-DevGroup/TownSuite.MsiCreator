@@ -80,23 +80,14 @@ for (int i = 0; i< args.Length; i++)
     }
     else if (string.Equals(args[i], "-Help", StringComparison.OrdinalIgnoreCase) || string.Equals(args[i], "--help", StringComparison.OrdinalIgnoreCase))
     {
-        Console.WriteLine("Usage: MsiCreator.exe -CompanyName <CompanyName> -Product <ProductName> -Version <ProductVersion> -SrcBinDirectory <SourceBinaryDirectory> -OutputDirectory <OutputDirectory> -MainExecutable <MainExecutablePath> -ProductGuid <ProductGuid> [-Platform <x64|x86|arm64>] [-LicenseFile <LicenseFilePath>]");
-        Console.WriteLine("Optional parameters:");
-        Console.WriteLine("  -SrcZip <SourceZipPath> : Path to a zip file containing the source binaries. If provided, it will extract to a temporary directory.");
-        Console.WriteLine("  -Platform <x64|x86|arm64> : Specify the platform for the MSI (default is x64).");
-        Console.WriteLine("  -LicenseFile <LicenseFilePath> : Path to the license file (default is 'LicenseTemplate.rtf').");
-        Console.WriteLine("  -OutputType <msi|wxs> : Specify the output type (default is 'msi').");
-        Console.WriteLine("  -UrlInfoAbout <URL> : URL for the 'Info About' link in the Control Panel.");
-        Console.WriteLine("  -UrlUpdateInfo <URL> : URL for the 'Update Info' link in the Control Panel.");
-        Console.WriteLine("  -Help or --help : Show this help message.");
-        Console.WriteLine("Example: MsiCreator.exe -CompanyName 'My Company' -Product 'My Product' -Version '1.0.0' -SrcBinDirectory 'C:\\Path\\To\\Binaries' -OutputDirectory 'C:\\Path\\To\\Output' -MainExecutable 'MyProduct.exe' -ProductGuid '{GUID}'");
+        PrintHelp();
         Environment.Exit(0);
     }
 }
 
 if (!config.IsValid())
 {
-    Console.WriteLine("All arguments must be provided: -CompanyName, -Product, -Version, -SrcBinDirectory, -OutputDirectory, -MainExecutable, -ProductGuid");
+    PrintHelp();
     Environment.Exit(1);
 }
 
@@ -128,4 +119,18 @@ finally
             Console.WriteLine($"Error cleaning up temporary directory: {ex.Message}");
         }
     }
+}
+
+static void PrintHelp()
+{
+    Console.WriteLine("Usage: MsiCreator.exe -CompanyName <CompanyName> -Product <ProductName> -Version <ProductVersion> -SrcBinDirectory <SourceBinaryDirectory> -OutputDirectory <OutputDirectory> -MainExecutable <MainExecutablePath> -ProductGuid <ProductGuid> [-Platform <x64|x86|arm64>] [-LicenseFile <LicenseFilePath>]");
+    Console.WriteLine("Optional parameters:");
+    Console.WriteLine("  -SrcZip <SourceZipPath> : Path to a zip file containing the source binaries. If provided, it will extract to a temporary directory.");
+    Console.WriteLine("  -Platform <x64|x86|arm64> : Specify the platform for the MSI (default is x64).");
+    Console.WriteLine("  -LicenseFile <LicenseFilePath> : Path to the license file (default is 'LicenseTemplate.rtf').");
+    Console.WriteLine("  -OutputType <msi|wxs> : Specify the output type (default is 'msi').");
+    Console.WriteLine("  -UrlInfoAbout <URL> : URL for the 'Info About' link in the Control Panel.");
+    Console.WriteLine("  -UrlUpdateInfo <URL> : URL for the 'Update Info' link in the Control Panel.");
+    Console.WriteLine("  -Help or --help : Show this help message.");
+    Console.WriteLine("Example: MsiCreator.exe -CompanyName 'My Company' -Product 'My Product' -Version '1.0.0' -SrcBinDirectory 'C:\\Path\\To\\Binaries' -OutputDirectory 'C:\\Path\\To\\Output' -MainExecutable 'MyProduct.exe' -ProductGuid '{GUID}'");
 }
