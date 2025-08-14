@@ -43,6 +43,7 @@ namespace TownSuite.MsiCreator
                 Version = Version.Parse(_config.ProductVersion),
                 UI = WUI.WixUI_InstallDir,
                 Platform = _config.Platform,
+                // Set InstallScope based on ALLUSERS property
                 Scope = InstallScope.perUserOrMachine,
             };
 
@@ -59,9 +60,8 @@ namespace TownSuite.MsiCreator
             }
 
             project.LicenceFile = _config.LicenseFile;
-
             project.OutFileName =
-                $"{_config.ProductName}_{_config.ProductVersion}"; // Set InstallScope based on ALLUSERS property
+                $"{_config.ProductName}_{_config.ProductVersion}";
 
             if (_config.OutputType.Equals("msi", StringComparison.OrdinalIgnoreCase))
             {
@@ -74,7 +74,7 @@ namespace TownSuite.MsiCreator
                 Console.WriteLine(wxsFilepath);
             }
         }
-        
+
         Dir BuildDir(string currentDir, bool isRoot = false)
         {
             var subDirs = Directory.GetDirectories(currentDir);
