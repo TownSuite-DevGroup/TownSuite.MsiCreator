@@ -3,7 +3,8 @@ Requires the wix tool be installed
 ```powershell
 dotnet tool install --global wix --version 4.0.6
 setx PATH "%PATH%;C:\Users\<USERNAME>\.dotnet\tools"
-wix.exe extension add -g WixToolset.UI.wixext
+$dotnetToolsPath = "$env:USERPROFILE\.dotnet\tools"
+$env:PATH += ";$dotnetToolsPath"
 ```
 
 Use the [download_release](https://github.com/TownSuite-DevGroup/TownSuite.MsiCreator/blob/main/download_release.ps1) script as part of build pipelines to download specific releases of msicreator.
