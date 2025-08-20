@@ -15,7 +15,7 @@ namespace TownSuite.MsiCreator
         {
             var rootDir = BuildDir(_config.SrcBinDirectory, true);
 
-            var project = new ManagedProject(_config.ProductName,
+            var project = new Project(_config.ProductName,
                 new Dir(@$"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}",
                     rootDir,
                     new WixSharp.File(Path.Combine(_config.SrcBinDirectory, _config.MainExecutable))
