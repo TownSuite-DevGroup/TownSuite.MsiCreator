@@ -15,15 +15,24 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v2
     - name: Build
       run: dotnet build TownSuite.MsiCreator.sln -c Release
 
-    - name: Archive artifacts
+    - name: Archive net8.0 artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: win-anycpu
+        name: win-anycpu-net8.0
         path: |
           TownSuite.MsiCreator/bin/Release/net8.0-windows
+        retention-days: 1
+    - name: Archive net48 artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: win-anycpu-net48
+        path: |
+          TownSuite.MsiCreator/bin/Release/net48
         retention-days: 1
   # the linux-build copies the windows artifacts and packages its with wine in a docker image
   linux-build:

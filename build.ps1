@@ -8,6 +8,7 @@ if (-not (Test-Path -Path "$CURRENTPATH/build")) {
 }
 
 dotnet build -c "Release" -f "net8.0-windows"
-dotnet pack --configuration Release --no-build
+dotnet build -c "Release" -f "net48"
+#dotnet pack --configuration Release --no-build
 
-Get-ChildItem -Path $CURRENTPATH -Recurse -Filter "*.nupkg" | Where-Object { $_.FullName -notlike "*\build\*" } | Copy-Item -Destination "$CURRENTPATH/build" -Force
+#Get-ChildItem -Path $CURRENTPATH -Recurse -Filter "*.nupkg" | Where-Object { $_.FullName -notlike "*\build\*" } | Copy-Item -Destination "$CURRENTPATH/build" -Force
