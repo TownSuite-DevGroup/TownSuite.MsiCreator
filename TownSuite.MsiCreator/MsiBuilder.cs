@@ -95,7 +95,11 @@ namespace TownSuite.MsiCreator
         {
             var subDirs = Directory.GetDirectories(currentDir);
 
+#if NET48
+            string fullDirPath = Path.GetFullPath(currentDir);
+#else
             string fullDirPath = @"\\?\" + Path.GetFullPath(currentDir);
+#endif
 
             var entities = new List<WixEntity>();
 
