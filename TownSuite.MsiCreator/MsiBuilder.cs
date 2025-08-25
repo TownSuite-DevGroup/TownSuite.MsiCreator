@@ -123,62 +123,66 @@ namespace TownSuite.MsiCreator
 #if NET48
         private string GetWixBinDir()
         {
-            string rval = System.Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-            if ((rval == null) || (rval == ""))
+            string wixBinPath = System.Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+            if ((wixBinPath == null) || (wixBinPath == ""))
             {
-                rval = System.Environment.GetEnvironmentVariable("ProgramFiles");
+                wixBinPath = System.Environment.GetEnvironmentVariable("ProgramFiles");
             }
-            if ((rval == null) || (rval == ""))
+            if ((wixBinPath == null) || (wixBinPath == ""))
             {
-                rval = @"C:\Program Files";
+                wixBinPath = @"C:\Program Files";
             }
 
-            if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.11", "bin")))
+            if (System.IO.Directory.Exists(System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.14", "bin")))
             {
-                rval = System.IO.Path.Combine(rval, "WiX Toolset v3.11", "bin");
+                wixBinPath = System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.14", "bin");
             }
-            else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.10", "bin")))
+            else if (System.IO.Directory.Exists(System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.11", "bin")))
+            {
+                wixBinPath = System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.11", "bin");
+            }
+            else if (System.IO.Directory.Exists(System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.10", "bin")))
             {
                 // Attempt to use version 3.10 new directory
-                rval = System.IO.Path.Combine(rval, "WiX Toolset v3.10", "bin");
+                wixBinPath = System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.10", "bin");
             }
-            else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.9", "bin")))
+            else if (System.IO.Directory.Exists(System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.9", "bin")))
             {
                 // Attempt to use version 3.9 new directory
-                rval = System.IO.Path.Combine(rval, "WiX Toolset v3.9", "bin");
+                wixBinPath = System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.9", "bin");
             }
-            else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.8", "bin")))
+            else if (System.IO.Directory.Exists(System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.8", "bin")))
             {
                 // Attempt to use version 3.8 new directory
-                rval = System.IO.Path.Combine(rval, "WiX Toolset v3.8", "bin");
+                wixBinPath = System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.8", "bin");
             }
-            else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.7", "bin")))
+            else if (System.IO.Directory.Exists(System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.7", "bin")))
             {
                 // Attempt to use version 3.7 new directory
-                rval = System.IO.Path.Combine(rval, "WiX Toolset v3.7", "bin");
+                wixBinPath = System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.7", "bin");
             }
-            else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "WiX Toolset v3.6", "bin")))
+            else if (System.IO.Directory.Exists(System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.6", "bin")))
             {
                 // Attempt to use version 3.6 new directory
-                rval = System.IO.Path.Combine(rval, "WiX Toolset v3.6", "bin");
+                wixBinPath = System.IO.Path.Combine(wixBinPath, "WiX Toolset v3.6", "bin");
             }
-            else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "Windows Installer XML v3.6", "bin")))
+            else if (System.IO.Directory.Exists(System.IO.Path.Combine(wixBinPath, "Windows Installer XML v3.6", "bin")))
             {
                 // Attempt to use version 3.6
-                rval = System.IO.Path.Combine(rval, "Windows Installer XML v3.6", "bin");
+                wixBinPath = System.IO.Path.Combine(wixBinPath, "Windows Installer XML v3.6", "bin");
             }
-            else if (System.IO.Directory.Exists(System.IO.Path.Combine(rval, "Windows Installer XML v3.5", "bin")))
+            else if (System.IO.Directory.Exists(System.IO.Path.Combine(wixBinPath, "Windows Installer XML v3.5", "bin")))
             {
                 // Attempt to use version 3.5
-                rval = System.IO.Path.Combine(rval, "Windows Installer XML v3.5", "bin");
+                wixBinPath = System.IO.Path.Combine(wixBinPath, "Windows Installer XML v3.5", "bin");
             }
             else
             {
                 // Fall back to version 3
-                rval = Path.Combine(rval, "Windows Installer XML v3", "bin");
+                wixBinPath = Path.Combine(wixBinPath, "Windows Installer XML v3", "bin");
             }
 
-            return rval;
+            return wixBinPath;
         }
 #endif
     }
