@@ -60,12 +60,6 @@ namespace TownSuite.MsiCreator
                 };
             }
 
-#if NET8_0_OR_GREATER
-            InstallScope installScope = InstallScope.perUserOrMachine;
-#else
-            InstallScope installScope = InstallScope.perUser;
-#endif 
-
             var project = new Project(_config.ProductName,
                 new Dir($@"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}",
                     rootDir,
@@ -82,9 +76,9 @@ namespace TownSuite.MsiCreator
 
                 // Set InstallScope based on ALLUSERS property
 #if NET8_0_OR_GREATER
-                Scope = installScope
+                Scope = _config.Scope
 #elif NET48
-                InstallScope = installScope
+                InstallScope = _config.Scope
 #endif
             };
 
