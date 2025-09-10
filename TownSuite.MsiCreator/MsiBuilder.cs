@@ -20,12 +20,31 @@ namespace TownSuite.MsiCreator
         {
             var rootDir = BuildDir(_config.SrcBinDirectory, true);
 
-            var project = new Project(_config.ProductName,
-                new Dir($@"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}",
-                    rootDir,
-                    new WixSharp.File(Path.Combine(_config.SrcBinDirectory, _config.MainExecutable))
-                    {
-                        Shortcuts = new[]
+            WixSharp.File mainExecutable;
+            if (_config.IsService)
+            {
+                mainExecutable = new WixSharp.File(Path.Combine(_config.SrcBinDirectory, _config.MainExecutable));
+
+                mainExecutable.ServiceInstaller = new ServiceInstaller
+                {
+                    Name = _config.ProductName,
+                    StartOn = null,
+                    StopOn = SvcEvent.InstallUninstall_Wait,
+                    RemoveOn = SvcEvent.Uninstall_Wait,
+                    Start = SvcStartType.auto,
+                    DelayedAutoStart = true,
+                    FirstFailureActionType = FailureActionType.restart,
+                    SecondFailureActionType = FailureActionType.restart,
+                    ThirdFailureActionType = FailureActionType.restart,
+                    RestartServiceDelayInSeconds = 60 * 10, // 10 minutes 
+                    Description =  $"{_config.CompanyName} - {_config.ProductName}"
+                };
+            }
+            else
+            {
+                mainExecutable = new WixSharp.File(Path.Combine(_config.SrcBinDirectory, _config.MainExecutable))
+                {
+                    Shortcuts = new[]
                         {
                             new FileShortcut(_config.ProductName, "%DesktopFolder%")
                             {
@@ -38,7 +57,19 @@ namespace TownSuite.MsiCreator
                                 Description = $"{_config.CompanyName} - {_config.ProductName}",
                             }
                         }
-                    }
+                };
+            }
+
+#if NET8_0_OR_GREATER
+            InstallScope installScope = InstallScope.perUserOrMachine;
+#else
+            InstallScope installScope = InstallScope.perUser;
+#endif 
+
+            var project = new Project(_config.ProductName,
+                new Dir($@"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}",
+                    rootDir,
+                    mainExecutable
                 )
             )
             {
@@ -51,9 +82,9 @@ namespace TownSuite.MsiCreator
 
                 // Set InstallScope based on ALLUSERS property
 #if NET8_0_OR_GREATER
-                Scope = InstallScope.perUserOrMachine,
+                Scope = installScope
 #elif NET48
-                InstallScope = InstallScope.perUser
+                InstallScope = installScope
 #endif
             };
 

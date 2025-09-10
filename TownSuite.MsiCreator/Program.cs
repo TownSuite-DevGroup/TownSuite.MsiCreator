@@ -94,6 +94,38 @@ class Program
             {
                 config.UrlUpdateInfo = args[i + 1];
             }
+            else if (string.Equals(args[i], "-IsService", StringComparison.OrdinalIgnoreCase))
+            {
+                config.IsService = true;
+            }
+            else if (string.Equals(args[i], "-InstallScope", StringComparison.OrdinalIgnoreCase))
+            {
+                string scope = args[i + 1].ToLower();
+                if (scope == "peruser")
+                {
+                    config.Scope = InstallScope.perUser;
+                }
+                else if (scope == "permachine")
+                {
+                    config.Scope = InstallScope.perMachine;
+                }
+#if NET8_0_OR_GREATER
+                else if (scope == "peruserormachine")
+                {
+                    config.Scope = InstallScope.perUserOrMachine;
+                }
+#endif
+                else
+                {
+#if NET8_0_OR_GREATER
+                    config.Scope = InstallScope.perUserOrMachine;
+                    Console.WriteLine("Invalid install scope specified. Defaulting to 'perUserOrMachine'.");
+#else
+                    config.Scope = InstallScope.perUser;
+                    Console.WriteLine("Invalid install scope specified. Defaulting to 'perUser'.");
+#endif
+                }
+            }
             else if (string.Equals(args[i], "-Help", StringComparison.OrdinalIgnoreCase) || string.Equals(args[i], "--help", StringComparison.OrdinalIgnoreCase))
             {
                 PrintHelp();
@@ -148,6 +180,8 @@ class Program
         Console.WriteLine("  -OutputType <msi|wxs> : Specify the output type (default is 'msi').");
         Console.WriteLine("  -UrlInfoAbout <URL> : URL for the 'Info About' link in the Control Panel.");
         Console.WriteLine("  -UrlUpdateInfo <URL> : URL for the 'Update Info' link in the Control Panel.");
+        Console.WriteLine("  -IsService : Set this flag if the application is a Windows Service.");
+        Console.WriteLine("  -InstallScope <perUser|perMachine|perUserOrMachine> : Specify the install scope (default is 'perUserOrMachine').");
         Console.WriteLine("  -Help or --help : Show this help message.");
         Console.WriteLine("Example: MsiCreator.exe -CompanyName 'My Company' -Product 'My Product' -Version '1.0.0' -SrcBinDirectory 'C:\\Path\\To\\Binaries' -OutputDirectory 'C:\\Path\\To\\Output' -MainExecutable 'MyProduct.exe' -ProductGuid '{GUID}'");
     }
