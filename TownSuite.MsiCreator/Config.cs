@@ -28,29 +28,51 @@ namespace TownSuite.MsiCreator
         /// <summary>
         /// Valid values are "perUser", "perMachine" or "perUserOrMachine" (default on .NET 8.0 or greater).
         /// </summary>
-        public InstallScope Scope { get; set; } = InstallScope.perUserOrMachine; 
+        public InstallScope Scope { get; set; } = InstallScope.perUserOrMachine;
 #else
         /// <summary>
         /// Valid values are "perUser" (default net48), "perMachine" or "perUserOrMachine" (default on .NET 8.0 or greater).
         /// </summary>
         public InstallScope Scope { get; set; } = InstallScope.perUser;
-#endif 
+#endif
 
-        public bool IsValid()
+        public (bool Valid, string Message) IsValid()
         {
-            if (string.IsNullOrWhiteSpace(CompanyName) ||
-                string.IsNullOrWhiteSpace(LicenseFile) ||
-                string.IsNullOrWhiteSpace(ProductName) ||
-                string.IsNullOrWhiteSpace(ProductVersion) ||
-                (string.IsNullOrWhiteSpace(SrcBinDirectory) && string.IsNullOrWhiteSpace(SrcZip)) ||
-                string.IsNullOrWhiteSpace(OutputDirectory) ||
-                string.IsNullOrWhiteSpace(MainExecutable) ||
-                string.IsNullOrWhiteSpace(ProductGuid) ||
-                (OutputType != "msi" && OutputType != "wxs"))
+            var missingFields = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(CompanyName))
+                missingFields.Add("CompanyName");
+
+            if (string.IsNullOrWhiteSpace(LicenseFile))
+                missingFields.Add("LicenseFile");
+
+            if (string.IsNullOrWhiteSpace(ProductName))
+                missingFields.Add("ProductName");
+
+            if (string.IsNullOrWhiteSpace(ProductVersion))
+                missingFields.Add("ProductVersion");
+
+            if (string.IsNullOrWhiteSpace(SrcBinDirectory) && string.IsNullOrWhiteSpace(SrcZip))
+                missingFields.Add("SrcBinDirectory or SrcZip");
+
+            if (string.IsNullOrWhiteSpace(OutputDirectory))
+                missingFields.Add("OutputDirectory");
+
+            if (string.IsNullOrWhiteSpace(MainExecutable))
+                missingFields.Add("MainExecutable");
+
+            if (string.IsNullOrWhiteSpace(ProductGuid))
+                missingFields.Add("ProductGuid");
+
+            if (OutputType != "msi" && OutputType != "wxs")
+                missingFields.Add("OutputType (must be 'msi' or 'wxs')");
+
+            if (missingFields.Count > 0)
             {
-                return false;
+                return (false, $"Missing required fields: {string.Join(", ", missingFields)}");
             }
-            return true;
+
+            return (true, "");
         }
     }
 }

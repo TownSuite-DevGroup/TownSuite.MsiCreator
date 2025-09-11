@@ -133,8 +133,10 @@ class Program
             }
         }
 
-        if (!config.IsValid())
+        var validatinResult = config.IsValid();
+        if (!validatinResult.Valid)
         {
+            Console.WriteLine("Configuration is invalid. Missing or incorrect fields: " + validatinResult.Message);
             PrintHelp();
             Environment.Exit(1);
         }
