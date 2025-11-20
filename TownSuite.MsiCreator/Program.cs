@@ -6,6 +6,7 @@
 // The WiX project is built using the WixSharp library, which simplifies the creation of MSI installers in C#.
 // The project includes a main executable and a manual file in the documentation directory.
 using System;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using TownSuite.MsiCreator;
@@ -80,9 +81,9 @@ class Program
             else if (string.Equals(args[i], "-OutputType", StringComparison.OrdinalIgnoreCase))
             {
                 config.OutputType = args[i + 1].ToLower();
-                if (config.OutputType != "msi" &&  config.OutputType != "wxs")
+                if (config.OutputType != "msi" && config.OutputType != "wxs" && config.OutputType != "exe")
                 {
-                    Console.WriteLine("Invalid output type specified. Use 'msi' or 'wxs'.");
+                    Console.WriteLine("Invalid output type specified. Use 'msi', 'wxs', or 'exe'.");
                     Environment.Exit(1);
                 }
             }
@@ -152,8 +153,16 @@ class Program
                 config.SrcBinDirectory = tempDir;
             }
 
-            var msiBuilder = new MsiBuilder(config);
-            msiBuilder.Build();
+            if (config.OutputType == "exe")
+            {
+                var nsisBuilder = new NsisBuilder(config);
+                nsisBuilder.Build();
+            }
+            else
+            {
+                var msiBuilder = new MsiBuilder(config);
+                msiBuilder.Build();
+            }
         }
         finally
         {

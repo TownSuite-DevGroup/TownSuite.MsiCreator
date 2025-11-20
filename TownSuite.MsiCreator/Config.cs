@@ -36,6 +36,13 @@ namespace TownSuite.MsiCreator
         public InstallScope Scope { get; set; } = InstallScope.perUser;
 #endif
 
+
+
+        public string InstallScopeToString()
+        {
+            return Scope.ToString();
+        }
+
         public (bool Valid, string Message) IsValid()
         {
             var missingFields = new List<string>();
@@ -64,8 +71,8 @@ namespace TownSuite.MsiCreator
             if (string.IsNullOrWhiteSpace(ProductGuid))
                 missingFields.Add("ProductGuid");
 
-            if (OutputType != "msi" && OutputType != "wxs")
-                missingFields.Add("OutputType (must be 'msi' or 'wxs')");
+            if (OutputType != "msi" && OutputType != "wxs" && OutputType != "exe")
+                missingFields.Add("OutputType (must be 'msi', 'wxs', or 'exe')");
 
             if (missingFields.Count > 0)
             {
