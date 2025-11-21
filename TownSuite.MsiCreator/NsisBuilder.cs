@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO.Compression;
 
 namespace TownSuite.MsiCreator
 {
@@ -304,7 +305,46 @@ namespace TownSuite.MsiCreator
                     return c;
             }
 
-            return null;
+            // not found, use the embedded nsis-3.11.zip, extract it to a temp folder and return that path
+            try
+            {
+                // Look for a bundled zip next to the running assembly or in the application directory
+                var baseDirs = new[] { AppContext.BaseDirectory, Directory.GetCurrentDirectory() };
+                string zipPath = null;
+                foreach (var d in baseDirs)
+                {
+                    var candidate = Path.Combine(d, "nsis-3.11.zip");
+                    if (File.Exists(candidate))
+                    {
+                        zipPath = candidate;
+                        break;
+                    }
+                }
+
+                if (zipPath == null)
+                    return null;
+
+                var nsisTempRoot = Path.Combine(Path.GetTempPath(), "TownSuite", "nsis");
+                if (Directory.Exists(nsisTempRoot))
+                {
+                     System.IO.Directory.Delete(nsisTempRoot, true);
+                }
+                var extractDir = Path.Combine(nsisTempRoot, "nsis-3.11-" + Guid.NewGuid().ToString("N"));
+                Directory.CreateDirectory(extractDir);
+                ZipFile.ExtractToDirectory(zipPath, extractDir);
+
+                // Search for makensis.exe in extracted tree
+                var found = Directory.GetFiles(extractDir, "makensis.exe", SearchOption.AllDirectories).FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(found))
+                    return found;
+
+                return null;
+            }
+            catch
+            {
+                // extraction failed or file missing
+                return null;
+            }
         }
     }
 }

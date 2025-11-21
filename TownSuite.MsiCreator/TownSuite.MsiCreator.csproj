@@ -14,6 +14,12 @@
 	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
 		<PackageReference Include="WixSharp.bin" Version="1.26.0" />
 	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="nsis-3.11.zip" />
+	</ItemGroup>
+	<ItemGroup>
+	  <EmbeddedResource Include="nsis-3.11.zip" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Update="LicenseTemplate.rtf">

@@ -33,6 +33,13 @@ Without placeholders example
 
 A zip file, -SrcZip, can be used as a src instead of a -SrcBinDirectory.
 
+NSIS exe with main executable
+
+```powershell
+.\TownSuite.MsiCreator.exe -OutputType "exe" -CompanyName "<CompanyName>" -Product "<Product>" -Version "<Version>" -SrcBinDirectory "<SrcBinDirectory>" -OutputDirectory "<OutputDirectory>" -MainExecutable "<MainExecutable>" -ProductGuid "<ProductGuid>" -Platform "x64"
+```
+
+
 
 # MSI Info
 
