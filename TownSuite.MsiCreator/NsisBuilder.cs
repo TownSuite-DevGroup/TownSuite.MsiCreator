@@ -115,6 +115,12 @@ namespace TownSuite.MsiCreator
             sb.AppendLine($"InstallDir \"{installDirVariable.Replace("$Company", _config.CompanyName).Replace("$Product", _config.ProductName)}\"");
             sb.AppendLine();
 
+            if (!string.IsNullOrWhiteSpace(_config.CompanyName))
+            {
+                sb.AppendLine($"BrandingText {_config.CompanyName}");
+                sb.AppendLine();
+            }
+
             // Request admin rights when installing to Program Files or when service installation is required
             if (!string.Equals(_config.InstallScopeToString(), "perUser", StringComparison.OrdinalIgnoreCase) || _config.IsService)
                 sb.AppendLine("RequestExecutionLevel admin");
@@ -129,12 +135,9 @@ namespace TownSuite.MsiCreator
                 var lic = Path.GetFullPath(_config.LicenseFile);
                 sb.AppendLine($"!define MUI_PAGE_LICENSE \"{EscapeForNsisString(lic)}\"");
             }
-            sb.AppendLine("!insertmacro MUI_PAGE_WELCOME");
             sb.AppendLine("!insertmacro MUI_PAGE_DIRECTORY");
             sb.AppendLine("!insertmacro MUI_PAGE_INSTFILES");
-            sb.AppendLine("!insertmacro MUI_PAGE_FINISH");
             sb.AppendLine();
-            sb.AppendLine("!insertmacro MUI_UNPAGE_CONFIRM");
             sb.AppendLine("!insertmacro MUI_UNPAGE_INSTFILES");
             sb.AppendLine();
 
