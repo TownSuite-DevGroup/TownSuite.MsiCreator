@@ -34,32 +34,3 @@ jobs:
         path: |
           TownSuite.MsiCreator/bin/Release/net48
         retention-days: 1
-  # the linux-build copies the windows artifacts and packages its with wine in a docker image
-  linux-build:
-    runs-on: ubuntu-latest
-    needs: windows-build
-    steps:
-    - uses: actions/checkout@v4
-    - name: Copy Windows artifacts
-      run: |
-        mkdir -p $GITHUB_WORKSPACE/build
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: win-anycpu
-        path: $GITHUB_WORKSPACE/build
-    - name: unzip
-      run: |
-        unzip -o $GITHUB_WORKSPACE/build/TownSuite.MsiCreator.zip -d $GITHUB_WORKSPACE/build
-    - name: Build Docker image
-      run: |
-        chmod +x ./build-image && ./build-image.sh
-    - name: Archive artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: linux-x64
-        path : |
-          **/*.tar.gz
-        retention-days: 1
-
-
