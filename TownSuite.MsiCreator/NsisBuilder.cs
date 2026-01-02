@@ -118,7 +118,7 @@ namespace TownSuite.MsiCreator
 
             if (!string.IsNullOrWhiteSpace(_config.CompanyName))
             {
-                sb.AppendLine($"BrandingText {_config.CompanyName}");
+                sb.AppendLine($"BrandingText \"{EscapeForNsisString(_config.CompanyName)}\"");
                 sb.AppendLine();
             }
 
