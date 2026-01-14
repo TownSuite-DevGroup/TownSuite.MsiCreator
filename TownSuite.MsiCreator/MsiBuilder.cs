@@ -134,9 +134,13 @@ namespace TownSuite.MsiCreator
 
             if (isRoot)
             {
-                // Add files directly to INSTALLDIR
-                entities.Add(new DirFiles(Path.Combine(fullDirPath, "*.*")));
-                // Add subdirectories as subfolders
+                var files = Directory.GetFiles(fullDirPath)
+                    .Where(f => !Path.GetFileName(f).Equals(_config.MainExecutable, StringComparison.OrdinalIgnoreCase))
+                    .Select(f => new WixSharp.File(f))
+                    .Cast<WixEntity>()
+                    .ToList();
+
+                entities.AddRange(files);
                 entities.AddRange(subDirs.Select(d => BuildDir(d)));
                 return new Dir(".", entities.ToArray());
             }
