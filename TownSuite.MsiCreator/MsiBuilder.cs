@@ -60,8 +60,12 @@ namespace TownSuite.MsiCreator
                 };
             }
 
+            string installDir = _config.Scope == InstallScope.perUser
+                ? $@"%LocalAppData%\{_config.CompanyName}\{_config.ProductName}"
+                : $@"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}";
+
             var project = new Project(_config.ProductName,
-                new Dir($@"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}",
+                new Dir(installDir,
                     rootDir,
                     mainExecutable
                 )
@@ -130,9 +134,13 @@ namespace TownSuite.MsiCreator
 
             if (isRoot)
             {
-                // Add files directly to INSTALLDIR
-                entities.Add(new DirFiles(Path.Combine(fullDirPath, "*.*")));
-                // Add subdirectories as subfolders
+                var files = Directory.GetFiles(fullDirPath)
+                    .Where(f => !Path.GetFileName(f).Equals(_config.MainExecutable, StringComparison.OrdinalIgnoreCase))
+                    .Select(f => new WixSharp.File(f))
+                    .Cast<WixEntity>()
+                    .ToList();
+
+                entities.AddRange(files);
                 entities.AddRange(subDirs.Select(d => BuildDir(d)));
                 return new Dir(".", entities.ToArray());
             }
