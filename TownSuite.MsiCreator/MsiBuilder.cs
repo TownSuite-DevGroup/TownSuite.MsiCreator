@@ -60,8 +60,12 @@ namespace TownSuite.MsiCreator
                 };
             }
 
+            string installDir = _config.Scope == InstallScope.perUser
+                ? $@"%LocalAppData%\{_config.CompanyName}\{_config.ProductName}"
+                : $@"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}";
+
             var project = new Project(_config.ProductName,
-                new Dir($@"%ProgramFiles%\{_config.CompanyName}\{_config.ProductName}",
+                new Dir(installDir,
                     rootDir,
                     mainExecutable
                 )
