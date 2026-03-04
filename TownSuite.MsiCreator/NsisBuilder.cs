@@ -82,10 +82,13 @@ namespace TownSuite.MsiCreator
             // Default to per-user install if explicitly perUser; otherwise use per-machine.
             var scope = _config.InstallScopeToString();
 
+            // When side-by-side is enabled, append the version so each version installs to its own directory.
+            var versionSuffix = _config.SideBySide ? "\\$Version" : string.Empty;
+
             if (string.Equals(scope, "perUser", StringComparison.OrdinalIgnoreCase))
-                return "$LOCALAPPDATA\\$Company\\$Product";
+                return $"$LOCALAPPDATA\\$Company\\$Product{versionSuffix}";
             else
-                return "$PROGRAMFILES\\$Company\\$Product";
+                return $"$PROGRAMFILES\\$Company\\$Product{versionSuffix}";
         }
 
         private string BuildNsisScript(string scriptPath, string outExePath, string installDirVariable)
@@ -100,6 +103,11 @@ namespace TownSuite.MsiCreator
             // Strip braces to avoid potential parsing issues in registry key name
             var productKey = rawProductKey.Trim('{', '}');
 
+            // When side-by-side is enabled, append the version to the registry key so each
+            // version gets its own Add/Remove Programs entry and can be uninstalled independently.
+            if (_config.SideBySide)
+                productKey = $"{productKey}_{_config.ProductVersion}";
+
             // Choose registry root according to install scope
             var isPerUser = string.Equals(_config.InstallScopeToString(), "perUser", StringComparison.OrdinalIgnoreCase);
             var regRoot = isPerUser ? "HKCU" : "HKLM";
@@ -113,7 +121,7 @@ namespace TownSuite.MsiCreator
 
             sb.AppendLine($"Name \"{EscapeForNsisString(_config.ProductName)}\"");
             sb.AppendLine($"OutFile \"{EscapeForNsisString(outExePath)}\"");
-            sb.AppendLine($"InstallDir \"{installDirVariable.Replace("$Company", _config.CompanyName).Replace("$Product", _config.ProductName)}\"");
+            sb.AppendLine($"InstallDir \"{installDirVariable.Replace("$Company", _config.CompanyName).Replace("$Product", _config.ProductName).Replace("$Version", _config.ProductVersion)}\"");
             sb.AppendLine();
 
             if (!string.IsNullOrWhiteSpace(_config.CompanyName))
@@ -154,24 +162,35 @@ namespace TownSuite.MsiCreator
             sb.AppendLine($"  File /r \"{EscapeForNsisString(Path.Combine(srcRoot, "*.*"))}\"");
             sb.AppendLine();
 
-            // Create shortcuts (desktop + start menu) for non-service
+            // Create shortcuts (desktop + start menu) for non-service.
+            // When side-by-side is enabled, include the version in shortcut names to avoid conflicts.
+            var shortcutDisplayName = _config.SideBySide
+                ? $"{_config.ProductName} {_config.ProductVersion}"
+                : _config.ProductName;
+
             if (!_config.IsService)
             {
-                sb.AppendLine($"  CreateShortCut \"$DESKTOP\\{EscapeForNsisString(_config.ProductName)}.lnk\" \"$INSTDIR\\{EscapeForNsisString(_config.MainExecutable)}\" \"\" \"$INSTDIR\\{EscapeForNsisString(_config.MainExecutable)}\" 0");
+                sb.AppendLine($"  CreateShortCut \"$DESKTOP\\{EscapeForNsisString(shortcutDisplayName)}.lnk\" \"$INSTDIR\\{EscapeForNsisString(_config.MainExecutable)}\" \"\" \"$INSTDIR\\{EscapeForNsisString(_config.MainExecutable)}\" 0");
                 sb.AppendLine();
 
                 sb.AppendLine($"  StrCpy $STARTMENU_DIR \"$SMPROGRAMS\\{EscapeForNsisString(_config.CompanyName)}\\{EscapeForNsisString(_config.ProductName)}\"");
                 sb.AppendLine("  CreateDirectory \"$STARTMENU_DIR\"");
-                sb.AppendLine($"  CreateShortCut \"$STARTMENU_DIR\\{EscapeForNsisString(_config.ProductName)}.lnk\" \"$INSTDIR\\{EscapeForNsisString(_config.MainExecutable)}\" \"\" \"$INSTDIR\\{EscapeForNsisString(_config.MainExecutable)}\" 0");
+                sb.AppendLine($"  CreateShortCut \"$STARTMENU_DIR\\{EscapeForNsisString(shortcutDisplayName)}.lnk\" \"$INSTDIR\\{EscapeForNsisString(_config.MainExecutable)}\" \"\" \"$INSTDIR\\{EscapeForNsisString(_config.MainExecutable)}\" 0");
                 sb.AppendLine();
             }
 
             // Service install (using sc.exe)
+            // When side-by-side is enabled, include the version in the service name
+            // so multiple versions can run as separate services.
             if (_config.IsService)
             {
-                var serviceName = _config.ProductName;
+                var serviceName = _config.SideBySide
+                    ? $"{_config.ProductName}_{_config.ProductVersion}"
+                    : _config.ProductName;
                 var svcExe = $"$INSTDIR\\{_config.MainExecutable}";
-                var desc = $"{_config.CompanyName} - {_config.ProductName}";
+                var desc = _config.SideBySide
+                    ? $"{_config.CompanyName} - {_config.ProductName} {_config.ProductVersion}"
+                    : $"{_config.CompanyName} - {_config.ProductName}";
 
                 sb.AppendLine($"  ; Install Windows service using sc.exe");
                 sb.AppendLine($"  ExecWait 'sc create \"{EscapeForNsisString(serviceName)}\" binPath= \"{EscapeForNsisString(svcExe)}\" start= auto' $0");
@@ -185,10 +204,16 @@ namespace TownSuite.MsiCreator
             sb.AppendLine($"  WriteUninstaller \"$INSTDIR\\Uninstall.exe\"");
             sb.AppendLine();
 
-            // Register the product in ARP (Programs and Features)
+            // Register the product in ARP (Programs and Features).
+            // When side-by-side is enabled, include the version in DisplayName so users
+            // can distinguish multiple installed versions in Add/Remove Programs.
+            var arpDisplayName = _config.SideBySide
+                ? $"{_config.ProductName} {_config.ProductVersion}"
+                : _config.ProductName;
+
             sb.AppendLine($"  ; Register in Add/Remove Programs ({regRoot})");
             // Use helper to guarantee correct four-parameter formatting and avoid accidental concatenation that produces 5 tokens.
-            AppendWriteRegStr(sb, regRoot, uninstallRegKey, "DisplayName", _config.ProductName);
+            AppendWriteRegStr(sb, regRoot, uninstallRegKey, "DisplayName", arpDisplayName);
             AppendWriteRegStr(sb, regRoot, uninstallRegKey, "UninstallString", "$INSTDIR\\Uninstall.exe");
             AppendWriteRegStr(sb, regRoot, uninstallRegKey, "DisplayVersion", _config.ProductVersion);
             AppendWriteRegStr(sb, regRoot, uninstallRegKey, "Publisher", _config.CompanyName);
@@ -210,7 +235,9 @@ namespace TownSuite.MsiCreator
             sb.AppendLine("Section \"Uninstall\"");
             if (_config.IsService)
             {
-                var serviceName = _config.ProductName;
+                var serviceName = _config.SideBySide
+                    ? $"{_config.ProductName}_{_config.ProductVersion}"
+                    : _config.ProductName;
                 sb.AppendLine($"  ; stop and delete service");
                 sb.AppendLine($"  ExecWait 'sc stop \"{EscapeForNsisString(serviceName)}\"' $0");
                 sb.AppendLine($"  ExecWait 'sc delete \"{EscapeForNsisString(serviceName)}\"' $0");
@@ -219,8 +246,8 @@ namespace TownSuite.MsiCreator
 
             if (!_config.IsService)
             {
-                sb.AppendLine($"  Delete \"$DESKTOP\\{EscapeForNsisString(_config.ProductName)}.lnk\"");
-                sb.AppendLine($"  Delete \"$SMPROGRAMS\\{EscapeForNsisString(_config.CompanyName)}\\{EscapeForNsisString(_config.ProductName)}\\{EscapeForNsisString(_config.ProductName)}.lnk\"");
+                sb.AppendLine($"  Delete \"$DESKTOP\\{EscapeForNsisString(shortcutDisplayName)}.lnk\"");
+                sb.AppendLine($"  Delete \"$SMPROGRAMS\\{EscapeForNsisString(_config.CompanyName)}\\{EscapeForNsisString(_config.ProductName)}\\{EscapeForNsisString(shortcutDisplayName)}.lnk\"");
                 sb.AppendLine($"  RMDir /r \"$SMPROGRAMS\\{EscapeForNsisString(_config.CompanyName)}\\{EscapeForNsisString(_config.ProductName)}\"");
                 sb.AppendLine();
             }

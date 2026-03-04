@@ -23,6 +23,7 @@ namespace TownSuite.MsiCreator
         public string UrlInfoAbout { get; set; } = string.Empty;
         public string UrlUpdateInfo { get; set; } = string.Empty;
         public bool IsService { get; set; } = false;
+        public bool SideBySide { get; set; } = false;
 
 #if NET8_0_OR_GREATER
         /// <summary>

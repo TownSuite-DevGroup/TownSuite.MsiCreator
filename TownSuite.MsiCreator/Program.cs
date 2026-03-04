@@ -99,6 +99,10 @@ class Program
             {
                 config.IsService = true;
             }
+            else if (string.Equals(args[i], "-SideBySide", StringComparison.OrdinalIgnoreCase))
+            {
+                config.SideBySide = true;
+            }
             else if (string.Equals(args[i], "-InstallScope", StringComparison.OrdinalIgnoreCase))
             {
                 string scope = args[i + 1].ToLower();
@@ -192,6 +196,7 @@ class Program
         Console.WriteLine("  -UrlInfoAbout <URL> : URL for the 'Info About' link in the Control Panel.");
         Console.WriteLine("  -UrlUpdateInfo <URL> : URL for the 'Update Info' link in the Control Panel.");
         Console.WriteLine("  -IsService : Set this flag if the application is a Windows Service.");
+        Console.WriteLine("  -SideBySide : Enable side-by-side installation. Each version installs to its own directory and can be uninstalled independently.");
         Console.WriteLine("  -InstallScope <perUser|perMachine|perUserOrMachine> : Specify the install scope (default is 'perUserOrMachine').");
         Console.WriteLine("  -Help or --help : Show this help message.");
         Console.WriteLine("Example: MsiCreator.exe -CompanyName 'My Company' -Product 'My Product' -Version '1.0.0' -SrcBinDirectory 'C:\\Path\\To\\Binaries' -OutputDirectory 'C:\\Path\\To\\Output' -MainExecutable 'MyProduct.exe' -ProductGuid '{GUID}'");
