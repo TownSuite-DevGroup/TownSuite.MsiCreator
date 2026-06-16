@@ -1,0 +1,53 @@
+# CLI flag reference table. reqColor: required = #E48D1A, optional = #9aa9b8
+- name: "-OutputType"
+  req: optional
+  reqColor: "#9aa9b8"
+  desc: 'Installer format: "msi" (default) or "exe" for an NSIS executable.'
+- name: "-CompanyName"
+  req: required
+  reqColor: "#E48D1A"
+  desc: "Publisher / company name shown in the installer and install path."
+- name: "-Product"
+  req: required
+  reqColor: "#E48D1A"
+  desc: "Product name for the package and the installed folder."
+- name: "-Version"
+  req: required
+  reqColor: "#E48D1A"
+  desc: "Product version, e.g. 1.0.0."
+- name: "-SrcBinDirectory"
+  req: required
+  reqColor: "#E48D1A"
+  desc: "Folder containing the compiled binaries to package."
+- name: "-SrcZip"
+  req: optional
+  reqColor: "#9aa9b8"
+  desc: "A zip archive used as the source instead of -SrcBinDirectory."
+- name: "-OutputDirectory"
+  req: required
+  reqColor: "#E48D1A"
+  desc: "Where the generated .msi / .exe is written."
+- name: "-MainExecutable"
+  req: required
+  reqColor: "#E48D1A"
+  desc: "The primary executable launched by the installed product."
+- name: "-ProductGuid"
+  req: required
+  reqColor: "#E48D1A"
+  desc: "Stable upgrade GUID identifying the product across versions."
+- name: "-Platform"
+  req: required
+  reqColor: "#E48D1A"
+  desc: 'Target architecture, e.g. "x64".'
+- name: "-UrlInfoAbout"
+  req: optional
+  reqColor: "#9aa9b8"
+  desc: "Support / about URL recorded in Programs & Features."
+- name: "-UrlUpdateInfo"
+  req: optional
+  reqColor: "#9aa9b8"
+  desc: "Update information URL recorded in Programs & Features."
+- name: "-Help"
+  req: optional
+  reqColor: "#9aa9b8"
+  desc: "Print all available options at the prompt."

@@ -1,0 +1,344 @@
+---
+layout: default
+---
+{% assign repo = site.townsuite.repo_url %}
+{% assign accent = site.townsuite.accent %}
+{% assign releasesUrl = repo | append: '/releases' %}
+{% assign licenseUrl = repo | append: '/blob/main/LICENSE.txt' %}
+{% assign downloadScriptUrl = repo | append: '/blob/main/download_release.ps1' %}
+
+<div style="font-family:'IBM Plex Sans',system-ui,sans-serif;color:#11283b;background:#ffffff">
+
+  <!-- brand strip -->
+  <div style="height:4px;width:100%;background:linear-gradient(90deg,#00578E 0%,#6B95BE 32%,#E48D1A 64%,#2DA343 84%,#E03A3E 100%)"></div>
+
+  <!-- NAV -->
+  <header style="position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.86);backdrop-filter:saturate(160%) blur(14px);border-bottom:1px solid #E7EDF4">
+    <nav style="max-width:1180px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px">
+      <a href="#top" style="display:flex;align-items:center;gap:12px">
+        <svg viewBox="0 0 95 95" width="34" height="34" aria-hidden="true"><g><rect x="34.8" y="36" transform="matrix(0.4241 0.9056 -0.9056 0.4241 71.3904 -14.9512)" fill="#00578E" width="25.2" height="25.2"></rect><rect x="22.2" y="6.6" transform="matrix(0.4241 0.9056 -0.9056 0.4241 37.4551 -20.5025)" fill="#D8E0ED" width="25.2" height="25.2"></rect><rect x="5" y="50.8" transform="matrix(0.4241 0.9056 -0.9056 0.4241 67.5745 20.6203)" fill="#6B95BE" width="25.2" height="25.2"></rect><rect x="69.6" y="66.4" transform="matrix(-0.4559 -0.89 0.89 -0.4559 45.963 174.1142)" fill="#E48D1A" width="13.1" height="13.1"></rect><rect x="86.4" y="59.7" transform="matrix(-0.4258 -0.9048 0.9048 -0.4258 70.867 171.2279)" fill="#2DA343" width="6.8" height="6.8"></rect><rect x="77.1" y="85.3" transform="matrix(-0.4254 -0.905 0.905 -0.4254 34.5684 199.4388)" fill="#E03A3E" width="6.9" height="6.9"></rect></g></svg>
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;letter-spacing:-0.01em;color:#0E2436">TownSuite<span style="color:#6B95BE">.</span>MsiCreator</span>
+      </a>
+      <div id="nav-links" style="display:flex;align-items:center;gap:28px">
+        <a href="#prerequisites" class="nav-link" style="font-size:14.5px;font-weight:500;color:#48627a">Prerequisites</a>
+        <a href="#quickstart" class="nav-link" style="font-size:14.5px;font-weight:500;color:#48627a">Quick start</a>
+        <a href="#reference" class="nav-link" style="font-size:14.5px;font-weight:500;color:#48627a">CLI reference</a>
+        <a href="#nsis" class="nav-link" style="font-size:14.5px;font-weight:500;color:#48627a">NSIS</a>
+        <a href="#cicd" class="nav-link" style="font-size:14.5px;font-weight:500;color:#48627a">CI/CD</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:#00578E;background:#EAF1F8;border:1px solid #D8E0ED;padding:5px 9px;border-radius:999px">{{ site.townsuite.version }}</span>
+        <a href="{{ repo }}" target="_blank" rel="noopener" class="btn-gh" style="display:inline-flex;align-items:center;gap:8px;background:#0E2436;color:#fff;font-size:14px;font-weight:500;padding:9px 15px;border-radius:9px">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+          GitHub
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section id="top" style="position:relative;overflow:hidden;background:linear-gradient(180deg,#ffffff 0%,#F4F8FC 100%)">
+    <!-- decorative chips -->
+    <div style="position:absolute;top:80px;right:-30px;width:120px;height:120px;background:#D8E0ED;opacity:0.5;transform:rotate(25deg);border-radius:14px;animation:ts-float 7s ease-in-out infinite"></div>
+    <div style="position:absolute;top:230px;right:120px;width:64px;height:64px;background:{{ accent }};opacity:0.16;transform:rotate(18deg);border-radius:10px;animation:ts-float 9s ease-in-out infinite"></div>
+    <div style="position:absolute;bottom:40px;left:-20px;width:90px;height:90px;background:#6B95BE;opacity:0.14;transform:rotate(-12deg);border-radius:12px;animation:ts-float 8s ease-in-out infinite"></div>
+
+    <div id="hero" style="position:relative;max-width:1180px;margin:0 auto;padding:92px 28px 96px;display:grid;grid-template-columns:1.05fr 0.95fr;gap:56px;align-items:center">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:9px;background:#fff;border:1px solid #DCE6F0;border-radius:999px;padding:6px 13px;margin-bottom:24px">
+          <span style="width:8px;height:8px;border-radius:50%;background:{{ accent }}"></span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:#3d5a72">.NET CLI &middot; MIT licensed</span>
+        </div>
+        <h1 id="hero-h1" style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:58px;line-height:1.04;letter-spacing:-0.03em;color:#0E2436;margin:0 0 20px">Ship Windows installers<br>straight from your build.</h1>
+        <p style="font-size:18px;line-height:1.6;color:#46627a;max-width:520px;margin:0 0 32px">A single command-line tool that turns a folder of .NET binaries into a polished <strong style="color:#11283b">.msi</strong> package &mdash; or an <strong style="color:#11283b">NSIS .exe</strong> installer. Built on WiX, designed to drop straight into your CI pipeline.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+          <a href="#quickstart" class="btn-primary" style="display:inline-flex;align-items:center;gap:9px;background:{{ accent }};color:#fff;font-size:15px;font-weight:600;padding:13px 22px;border-radius:11px;box-shadow:0 12px 26px -12px rgba(0,87,142,0.6)">
+            Get started
+            <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h11M11 5l5 5-5 5"></path></svg>
+          </a>
+          <a href="{{ releasesUrl }}" target="_blank" rel="noopener" class="btn-secondary" style="display:inline-flex;align-items:center;gap:9px;background:#fff;color:#11283b;font-size:15px;font-weight:600;padding:13px 22px;border-radius:11px;border:1px solid #D5E0EC">
+            <svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10m0 0l-4-4m4 4l4-4M4 17h12"></path></svg>
+            Download release
+          </a>
+        </div>
+        <div style="display:flex;gap:22px;margin-top:32px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px;color:#46627a"><span style="width:7px;height:7px;border-radius:50%;background:#2DA343"></span><span style="font-size:13.5px;color:#46627a">{{ site.townsuite.releases }}</span></div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:#E48D1A"></span><span style="font-size:13.5px;color:#46627a">x64 &middot; per-user or per-machine</span></div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:#00578E"></span><span style="font-size:13.5px;color:#46627a">MSI &amp; NSIS output</span></div>
+        </div>
+      </div>
+
+      <!-- hero terminal -->
+      <div id="hero-term" data-code style="border-radius:16px;overflow:hidden;background:#0B1B2B;border:1px solid rgba(255,255,255,0.09);box-shadow:0 30px 60px -28px rgba(7,28,45,0.7)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.07)">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.05em;color:#6B95BE">PowerShell</span>
+          <button onclick="tsCopy(this)" class="copy-btn" style="display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:#9fb8cf;font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:4px 7px;border-radius:7px">
+            <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"></rect><path d="M3.5 10.5h-1A1 1 0 011.5 9.5v-7a1 1 0 011-1h7a1 1 0 011 1v1"></path></svg>
+            <span data-copy-label>Copy</span>
+          </button>
+        </div>
+        <pre style="padding:18px 18px;overflow-x:auto"><code data-code-text style="font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.85;color:#cfe1f2;white-space:pre"><span style="color:#6fae7f"># turn your build output into an installer</span>
+.\TownSuite.MsiCreator.exe `
+  -CompanyName <span style="color:#9bd5ff">"Example"</span> `
+  -Product <span style="color:#9bd5ff">"Example"</span> `
+  -Version <span style="color:#9bd5ff">"1.0.0"</span> `
+  -SrcBinDirectory <span style="color:#9bd5ff">".\artifacts"</span> `
+  -OutputDirectory <span style="color:#9bd5ff">".\dist"</span> `
+  -MainExecutable <span style="color:#9bd5ff">"Example.exe"</span> `
+  -ProductGuid <span style="color:#9bd5ff">"ee85df4f-...-91b94657650f"</span> `
+  -Platform <span style="color:#9bd5ff">"x64"</span>
+
+<span style="color:#6fae7f"># =&gt; .\dist\Example.msi</span></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="ts-sec" style="max-width:1180px;margin:0 auto;padding:76px 28px 8px">
+    <div id="feat-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div style="background:#fff;border:1px solid #E7EDF4;border-radius:16px;padding:26px;box-shadow:0 1px 2px rgba(16,40,64,0.03)">
+        <div style="width:42px;height:42px;border-radius:11px;background:#EAF1F8;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#00578E" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"></path></svg>
+        </div>
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;color:#0E2436;margin:0 0 7px">MSI packages</h3>
+        <p style="font-size:14.5px;line-height:1.6;color:#52697e;margin:0">Generate standards-compliant Windows Installer packages with company, product, version and upgrade GUID baked in.</p>
+      </div>
+      <div style="background:#fff;border:1px solid #E7EDF4;border-radius:16px;padding:26px;box-shadow:0 1px 2px rgba(16,40,64,0.03)">
+        <div style="width:42px;height:42px;border-radius:11px;background:#FBF0DF;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#E48D1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path><path d="M7 10l5 5 5-5M12 15V3"></path></svg>
+        </div>
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;color:#0E2436;margin:0 0 7px">NSIS .exe output</h3>
+        <p style="font-size:14.5px;line-height:1.6;color:#52697e;margin:0">Prefer a self-contained executable? Pass <code style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#00578E;background:#EAF1F8;padding:1px 5px;border-radius:5px">-OutputType "exe"</code> for an NSIS installer instead.</p>
+      </div>
+      <div style="background:#fff;border:1px solid #E7EDF4;border-radius:16px;padding:26px;box-shadow:0 1px 2px rgba(16,40,64,0.03)">
+        <div style="width:42px;height:42px;border-radius:11px;background:#E4F4E8;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2DA343" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6M12 19h8"></path></svg>
+        </div>
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;color:#0E2436;margin:0 0 7px">CI/CD ready</h3>
+        <p style="font-size:14.5px;line-height:1.6;color:#52697e;margin:0">A bundled <code style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#00578E;background:#EAF1F8;padding:1px 5px;border-radius:5px">download_release.ps1</code> script pins a specific release inside your build pipeline.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PREREQUISITES -->
+  <section id="prerequisites" class="ts-sec" style="max-width:1180px;margin:0 auto;padding:80px 28px">
+    <div style="max-width:760px;margin-bottom:30px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#E48D1A;margin-bottom:12px">Step 01 &middot; Prerequisites</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:34px;letter-spacing:-0.02em;color:#11283b;margin:0 0 12px">Install the WiX toolset</h2>
+      <p style="font-size:16.5px;line-height:1.65;color:#46627a;margin:0">MsiCreator builds on top of WiX 4. Install it as a global .NET tool and make sure your <code style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#00578E;background:#EAF1F8;padding:1px 6px;border-radius:5px">PATH</code> includes the dotnet tools directory before running a build.</p>
+    </div>
+    <div data-code style="border-radius:14px;overflow:hidden;background:#0B1B2B;border:1px solid rgba(255,255,255,0.08);box-shadow:0 18px 40px -26px rgba(7,28,45,0.6)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 15px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.07)">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.05em;color:#6B95BE">PowerShell</span>
+        <button onclick="tsCopy(this)" class="copy-btn" style="display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:#9fb8cf;font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:4px 7px;border-radius:7px"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"></rect><path d="M3.5 10.5h-1A1 1 0 011.5 9.5v-7a1 1 0 011-1h7a1 1 0 011 1v1"></path></svg><span data-copy-label>Copy</span></button>
+      </div>
+      <pre style="padding:18px;overflow-x:auto"><code data-code-text style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;line-height:1.8;color:#cfe1f2;white-space:pre">dotnet tool install --global wix --version <span style="color:#9bd5ff">4.0.6</span>
+setx PATH <span style="color:#9bd5ff">"%PATH%;C:\Users\&lt;USERNAME&gt;\.dotnet\tools"</span>
+$dotnetToolsPath = <span style="color:#9bd5ff">"$env:USERPROFILE\.dotnet\tools"</span>
+$env:PATH += <span style="color:#9bd5ff">";$dotnetToolsPath"</span></code></pre>
+    </div>
+  </section>
+
+  <!-- QUICK START with tabs -->
+  <section id="quickstart" style="background:#F4F8FC;border-top:1px solid #E7EDF4;border-bottom:1px solid #E7EDF4">
+    <div class="ts-sec" style="max-width:1180px;margin:0 auto;padding:80px 28px">
+      <div style="max-width:760px;margin-bottom:30px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#00578E;margin-bottom:12px">Step 02 &middot; Quick start</div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:34px;letter-spacing:-0.02em;color:#11283b;margin:0 0 12px">Build your first installer</h2>
+        <p style="font-size:16.5px;line-height:1.65;color:#46627a;margin:0">Point MsiCreator at the folder containing your compiled binaries. A <code style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#00578E;background:#EAF1F8;padding:1px 6px;border-radius:5px">-SrcZip</code> archive works as a source too.</p>
+      </div>
+
+      <div data-tabs style="background:#fff;border:1px solid #E1E9F2;border-radius:16px;overflow:hidden;box-shadow:0 14px 34px -26px rgba(16,40,64,0.4)">
+        <div style="display:flex;gap:4px;padding:8px 8px 0;border-bottom:1px solid #EAF0F6;background:#FBFCFE;flex-wrap:wrap">
+          <button data-tab="0" onclick="tsSetTab(this)" style="border:0;background:#fff;color:#00578E;font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;font-weight:600;padding:11px 16px;border-radius:9px 9px 0 0;border-bottom:2px solid #00578E;cursor:pointer">Basic MSI</button>
+          <button data-tab="1" onclick="tsSetTab(this)" style="border:0;background:transparent;color:#64798d;font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;font-weight:600;padding:11px 16px;border-radius:9px 9px 0 0;border-bottom:2px solid transparent;cursor:pointer">With product URLs</button>
+          <button data-tab="2" onclick="tsSetTab(this)" style="border:0;background:transparent;color:#64798d;font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;font-weight:600;padding:11px 16px;border-radius:9px 9px 0 0;border-bottom:2px solid transparent;cursor:pointer">Concrete example</button>
+        </div>
+
+        <!-- panel 0 -->
+        <div data-panel="0" style="display:block">
+          <div data-code style="background:#0B1B2B;position:relative">
+            <button onclick="tsCopy(this)" class="copy-btn-abs" style="position:absolute;top:12px;right:14px;display:inline-flex;align-items:center;gap:6px;border:0;background:rgba(255,255,255,0.06);color:#9fb8cf;font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:5px 9px;border-radius:7px"><span data-copy-label>Copy</span></button>
+            <pre style="padding:20px 18px;overflow-x:auto"><code data-code-text style="font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.85;color:#cfe1f2;white-space:pre">.\TownSuite.MsiCreator.exe `
+  -CompanyName <span style="color:#9bd5ff">"&lt;CompanyName&gt;"</span> `
+  -Product <span style="color:#9bd5ff">"&lt;Product&gt;"</span> `
+  -Version <span style="color:#9bd5ff">"&lt;Version&gt;"</span> `
+  -SrcBinDirectory <span style="color:#9bd5ff">"&lt;SrcBinDirectory&gt;"</span> `
+  -OutputDirectory <span style="color:#9bd5ff">"&lt;OutputDirectory&gt;"</span> `
+  -MainExecutable <span style="color:#9bd5ff">"&lt;MainExecutable&gt;"</span> `
+  -ProductGuid <span style="color:#9bd5ff">"&lt;ProductGuid&gt;"</span> `
+  -Platform <span style="color:#9bd5ff">"x64"</span></code></pre>
+          </div>
+        </div>
+
+        <!-- panel 1 -->
+        <div data-panel="1" style="display:none">
+          <div data-code style="background:#0B1B2B;position:relative">
+            <button onclick="tsCopy(this)" class="copy-btn-abs" style="position:absolute;top:12px;right:14px;display:inline-flex;align-items:center;gap:6px;border:0;background:rgba(255,255,255,0.06);color:#9fb8cf;font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:5px 9px;border-radius:7px"><span data-copy-label>Copy</span></button>
+            <pre style="padding:20px 18px;overflow-x:auto"><code data-code-text style="font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.85;color:#cfe1f2;white-space:pre">.\TownSuite.MsiCreator.exe `
+  -CompanyName <span style="color:#9bd5ff">"&lt;CompanyName&gt;"</span> -Product <span style="color:#9bd5ff">"&lt;Product&gt;"</span> `
+  -Version <span style="color:#9bd5ff">"&lt;Version&gt;"</span> `
+  -SrcBinDirectory <span style="color:#9bd5ff">"&lt;SrcBinDirectory&gt;"</span> `
+  -OutputDirectory <span style="color:#9bd5ff">"&lt;OutputDirectory&gt;"</span> `
+  -MainExecutable <span style="color:#9bd5ff">"&lt;MainExecutable&gt;"</span> `
+  -ProductGuid <span style="color:#9bd5ff">"&lt;ProductGuid&gt;"</span> -Platform <span style="color:#9bd5ff">"x64"</span> `
+  -UrlInfoAbout <span style="color:#9bd5ff">"https://example.com"</span> `
+  -UrlUpdateInfo <span style="color:#9bd5ff">"https://example.com"</span></code></pre>
+          </div>
+        </div>
+
+        <!-- panel 2 -->
+        <div data-panel="2" style="display:none">
+          <div data-code style="background:#0B1B2B;position:relative">
+            <button onclick="tsCopy(this)" class="copy-btn-abs" style="position:absolute;top:12px;right:14px;display:inline-flex;align-items:center;gap:6px;border:0;background:rgba(255,255,255,0.06);color:#9fb8cf;font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:5px 9px;border-radius:7px"><span data-copy-label>Copy</span></button>
+            <pre style="padding:20px 18px;overflow-x:auto"><code data-code-text style="font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.85;color:#cfe1f2;white-space:pre">.\TownSuite.MsiCreator.exe `
+  -CompanyName <span style="color:#9bd5ff">"Example"</span> -Product <span style="color:#9bd5ff">"Example"</span> `
+  -Version <span style="color:#9bd5ff">"1.0.0"</span> `
+  -SrcBinDirectory <span style="color:#9bd5ff">"C:\Source\Directory\With\Your\Exe"</span> `
+  -OutputDirectory <span style="color:#9bd5ff">"C:\OutputDirectory"</span> `
+  -MainExecutable <span style="color:#9bd5ff">"Example.exe"</span> `
+  -ProductGuid <span style="color:#9bd5ff">"ee85df4f-6f19-4d3a-85bd-91b94657650f"</span> `
+  -Platform <span style="color:#9bd5ff">"x64"</span> `
+  -UrlInfoAbout <span style="color:#9bd5ff">"https://example.com"</span> `
+  -UrlUpdateInfo <span style="color:#9bd5ff">"https://example.com"</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLI REFERENCE -->
+  <section id="reference" class="ts-sec" style="max-width:1180px;margin:0 auto;padding:82px 28px">
+    <div style="max-width:760px;margin-bottom:30px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#6B95BE;margin-bottom:12px">Reference</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:34px;letter-spacing:-0.02em;color:#11283b;margin:0 0 12px">CLI flags</h2>
+      <p style="font-size:16.5px;line-height:1.65;color:#46627a;margin:0">Run <code style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#00578E;background:#EAF1F8;padding:1px 6px;border-radius:5px">.\TownSuite.MsiCreator.exe -Help</code> to list every option at the prompt.</p>
+    </div>
+    <div style="border:1px solid #E7EDF4;border-radius:16px;overflow:hidden">
+      <div style="display:grid;grid-template-columns:1.1fr 0.5fr 2fr;gap:0;background:#F4F8FC;border-bottom:1px solid #E7EDF4;padding:13px 22px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:#5a7090">
+        <span style="color:#5a7090">Flag</span><span style="color:#5a7090">Required</span><span style="color:#5a7090">Description</span>
+      </div>
+      {% for row in site.data.flags %}
+        <div style="display:grid;grid-template-columns:1.1fr 0.5fr 2fr;gap:0;padding:14px 22px;border-bottom:1px solid #EEF2F7;align-items:start">
+          <code style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#00578E;font-weight:500">{{ row.name }}</code>
+          <span style="font-size:12.5px;color:{{ row.reqColor }};font-weight:500">{{ row.req }}</span>
+          <span style="font-size:14px;line-height:1.55;color:#52697e">{{ row.desc }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- NSIS -->
+  <section id="nsis" style="background:#0B1B2B;color:#fff;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-40px;right:-30px;width:160px;height:160px;background:#E48D1A;opacity:0.12;transform:rotate(22deg);border-radius:20px"></div>
+    <div class="ts-sec" style="max-width:1180px;margin:0 auto;padding:80px 28px;position:relative">
+      <div style="max-width:760px;margin-bottom:30px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#E48D1A;margin-bottom:12px">Alternative output</div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:34px;letter-spacing:-0.02em;color:#fff;margin:0 0 12px">NSIS .exe installer</h2>
+        <p style="font-size:16.5px;line-height:1.65;color:#aac3d8;margin:0">Same arguments as an MSI build &mdash; just add <code style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#E9B26a;background:rgba(228,141,26,0.14);padding:1px 6px;border-radius:5px">-OutputType "exe"</code> to emit a self-contained NSIS executable.</p>
+      </div>
+      <div data-code style="border-radius:14px;overflow:hidden;background:#06121E;border:1px solid rgba(255,255,255,0.1)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 15px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.08)">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.05em;color:#6B95BE">PowerShell</span>
+          <button onclick="tsCopy(this)" class="copy-btn" style="display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:#9fb8cf;font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:4px 7px;border-radius:7px"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"></rect><path d="M3.5 10.5h-1A1 1 0 011.5 9.5v-7a1 1 0 011-1h7a1 1 0 011 1v1"></path></svg><span data-copy-label>Copy</span></button>
+        </div>
+        <pre style="padding:18px;overflow-x:auto"><code data-code-text style="font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.85;color:#cfe1f2;white-space:pre">.\TownSuite.MsiCreator.exe `
+  -OutputType <span style="color:#E9B26a">"exe"</span> `
+  -CompanyName <span style="color:#9bd5ff">"&lt;CompanyName&gt;"</span> -Product <span style="color:#9bd5ff">"&lt;Product&gt;"</span> `
+  -Version <span style="color:#9bd5ff">"&lt;Version&gt;"</span> `
+  -SrcBinDirectory <span style="color:#9bd5ff">"&lt;SrcBinDirectory&gt;"</span> `
+  -OutputDirectory <span style="color:#9bd5ff">"&lt;OutputDirectory&gt;"</span> `
+  -MainExecutable <span style="color:#9bd5ff">"&lt;MainExecutable&gt;"</span> `
+  -ProductGuid <span style="color:#9bd5ff">"&lt;ProductGuid&gt;"</span> -Platform <span style="color:#9bd5ff">"x64"</span></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALL BEHAVIOR -->
+  <section id="install" class="ts-sec" style="max-width:1180px;margin:0 auto;padding:82px 28px">
+    <div style="max-width:760px;margin-bottom:30px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#2DA343;margin-bottom:12px">Install behavior</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:34px;letter-spacing:-0.02em;color:#11283b;margin:0 0 12px">Per-user or per-machine</h2>
+      <p style="font-size:16.5px;line-height:1.65;color:#46627a;margin:0">The generated MSI installs <strong style="color:#11283b">per user</strong> by default &mdash; double-click it or run it from PowerShell. Pass <code style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#00578E;background:#EAF1F8;padding:1px 6px;border-radius:5px">ALLUSERS=1</code> to install machine-wide.</p>
+    </div>
+    <div id="install-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div style="border:1px solid #E7EDF4;border-radius:16px;padding:26px;background:#fff">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <span style="width:9px;height:9px;border-radius:50%;background:#6B95BE"></span>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;color:#0E2436;margin:0">Per user <span style="font-weight:500;font-size:13px;color:#7e93a6">(default)</span></h3>
+        </div>
+        <div data-code style="border-radius:10px;overflow:hidden;background:#0B1B2B;margin-bottom:16px;position:relative">
+          <button onclick="tsCopy(this)" class="copy-btn-abs" style="position:absolute;top:9px;right:11px;border:0;background:rgba(255,255,255,0.06);color:#9fb8cf;font-family:'IBM Plex Sans',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;padding:4px 8px;border-radius:6px"><span data-copy-label>Copy</span></button>
+          <pre style="padding:14px 16px;overflow-x:auto"><code data-code-text style="font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.7;color:#cfe1f2;white-space:pre">msiexec /i <span style="color:#9bd5ff">"MyProduct.msi"</span></code></pre>
+        </div>
+        <div style="font-size:12.5px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:#8295a7;margin-bottom:6px">Install path</div>
+        <code style="display:block;font-family:'IBM Plex Mono',monospace;font-size:12.5px;line-height:1.5;color:#3d5870;background:#F4F8FC;border:1px solid #E7EDF4;border-radius:8px;padding:10px 12px;word-break:break-all">C:\Users\[User]\AppData\Local\Programs\[CompanyName]\[Product]</code>
+      </div>
+      <div style="border:1px solid #E7EDF4;border-radius:16px;padding:26px;background:#fff">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <span style="width:9px;height:9px;border-radius:50%;background:#2DA343"></span>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;color:#0E2436;margin:0">Per machine <span style="font-weight:500;font-size:13px;color:#7e93a6">(admin)</span></h3>
+        </div>
+        <div data-code style="border-radius:10px;overflow:hidden;background:#0B1B2B;margin-bottom:16px;position:relative">
+          <button onclick="tsCopy(this)" class="copy-btn-abs" style="position:absolute;top:9px;right:11px;border:0;background:rgba(255,255,255,0.06);color:#9fb8cf;font-family:'IBM Plex Sans',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;padding:4px 8px;border-radius:6px"><span data-copy-label>Copy</span></button>
+          <pre style="padding:14px 16px;overflow-x:auto"><code data-code-text style="font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.7;color:#cfe1f2;white-space:pre">msiexec /i <span style="color:#9bd5ff">"MyProduct.msi"</span> <span style="color:#E9B26a">ALLUSERS=1</span></code></pre>
+        </div>
+        <div style="font-size:12.5px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:#8295a7;margin-bottom:6px">Install path</div>
+        <code style="display:block;font-family:'IBM Plex Mono',monospace;font-size:12.5px;line-height:1.5;color:#3d5870;background:#F4F8FC;border:1px solid #E7EDF4;border-radius:8px;padding:10px 12px;word-break:break-all">C:\Program Files\[CompanyName]\[Product]</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- CI/CD -->
+  <section id="cicd" style="background:#F4F8FC;border-top:1px solid #E7EDF4">
+    <div class="ts-sec" style="max-width:1180px;margin:0 auto;padding:80px 28px">
+      <div style="max-width:760px;margin-bottom:30px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500;letter-spacing:0.13em;text-transform:uppercase;color:#E48D1A;margin-bottom:12px">Pipelines</div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:34px;letter-spacing:-0.02em;color:#11283b;margin:0 0 12px">Pin a release in CI/CD</h2>
+        <p style="font-size:16.5px;line-height:1.65;color:#46627a;margin:0">Use the bundled <a href="{{ downloadScriptUrl }}" target="_blank" rel="noopener" style="color:#00578E;border-bottom:1px solid #D8E0ED;font-weight:500">download_release.ps1</a> script to fetch a specific version of MsiCreator during your build, then invoke it against your artifacts.</p>
+      </div>
+      <div data-code style="border-radius:14px;overflow:hidden;background:#0B1B2B;border:1px solid rgba(255,255,255,0.08);box-shadow:0 18px 40px -26px rgba(7,28,45,0.5)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 15px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.07)">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.05em;color:#6B95BE">build-pipeline.ps1</span>
+          <button onclick="tsCopy(this)" class="copy-btn" style="display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:#9fb8cf;font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:4px 7px;border-radius:7px"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"></rect><path d="M3.5 10.5h-1A1 1 0 011.5 9.5v-7a1 1 0 011-1h7a1 1 0 011 1v1"></path></svg><span data-copy-label>Copy</span></button>
+        </div>
+        <pre style="padding:18px;overflow-x:auto"><code data-code-text style="font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.85;color:#cfe1f2;white-space:pre"><span style="color:#6fae7f"># 1 — fetch a pinned msicreator release into your workspace</span>
+.\download_release.ps1
+
+<span style="color:#6fae7f"># 2 — package your freshly built artifacts</span>
+.\TownSuite.MsiCreator.exe `
+  -CompanyName <span style="color:#9bd5ff">"Example"</span> -Product <span style="color:#9bd5ff">"Example"</span> `
+  -Version <span style="color:#9bd5ff">"1.0.0"</span> `
+  -SrcBinDirectory <span style="color:#9bd5ff">".\artifacts"</span> `
+  -OutputDirectory <span style="color:#9bd5ff">".\dist"</span> `
+  -MainExecutable <span style="color:#9bd5ff">"Example.exe"</span> `
+  -ProductGuid <span style="color:#9bd5ff">"ee85df4f-6f19-4d3a-85bd-91b94657650f"</span> `
+  -Platform <span style="color:#9bd5ff">"x64"</span></code></pre>
+      </div>
+      <p style="font-size:14px;color:#64798d;margin:18px 0 0;display:flex;align-items:center;gap:8px">
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="#6B95BE" stroke-width="1.7"><circle cx="10" cy="10" r="8"></circle><path d="M10 6.5v4M10 13.5h.01" stroke-linecap="round"></path></svg>
+        A <code style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#00578E;background:#EAF1F8;padding:1px 6px;border-radius:5px">-SrcZip</code> archive can be used in place of <code style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#00578E;background:#EAF1F8;padding:1px 6px;border-radius:5px">-SrcBinDirectory</code>.
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="background:#0E2436;color:#aac3d8">
+    <div style="max-width:1180px;margin:0 auto;padding:50px 28px;display:flex;flex-wrap:wrap;gap:28px;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:13px">
+        <svg viewBox="0 0 95 95" width="32" height="32" aria-hidden="true"><g><rect x="34.8" y="36" transform="matrix(0.4241 0.9056 -0.9056 0.4241 71.3904 -14.9512)" fill="#6B95BE" width="25.2" height="25.2"></rect><rect x="22.2" y="6.6" transform="matrix(0.4241 0.9056 -0.9056 0.4241 37.4551 -20.5025)" fill="#D8E0ED" width="25.2" height="25.2"></rect><rect x="5" y="50.8" transform="matrix(0.4241 0.9056 -0.9056 0.4241 67.5745 20.6203)" fill="#456c92" width="25.2" height="25.2"></rect><rect x="69.6" y="66.4" transform="matrix(-0.4559 -0.89 0.89 -0.4559 45.963 174.1142)" fill="#E48D1A" width="13.1" height="13.1"></rect><rect x="86.4" y="59.7" transform="matrix(-0.4258 -0.9048 0.9048 -0.4258 70.867 171.2279)" fill="#2DA343" width="6.8" height="6.8"></rect><rect x="77.1" y="85.3" transform="matrix(-0.4254 -0.905 0.905 -0.4254 34.5684 199.4388)" fill="#E03A3E" width="6.9" height="6.9"></rect></g></svg>
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:#fff">TownSuite.MsiCreator</div>
+          <div style="font-size:13px;color:#7e9bb3">A CLI tool to generate MSI packages &middot; MIT licensed</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:26px;flex-wrap:wrap">
+        <a href="{{ repo }}" target="_blank" rel="noopener" class="foot-link" style="font-size:14px;color:#aac3d8">GitHub</a>
+        <a href="{{ releasesUrl }}" target="_blank" rel="noopener" class="foot-link" style="font-size:14px;color:#aac3d8">Releases</a>
+        <a href="{{ licenseUrl }}" target="_blank" rel="noopener" class="foot-link" style="font-size:14px;color:#aac3d8">License</a>
+        <a href="#top" class="foot-link" style="font-size:14px;color:#aac3d8">Back to top</a>
+      </div>
+    </div>
+  </footer>
+
+</div>

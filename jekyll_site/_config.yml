@@ -1,0 +1,23 @@
+title: TownSuite.MsiCreator
+description: A CLI tool to generate MSI (and NSIS .exe) installers from your build output — MIT licensed.
+lang: en
+
+# Site-wide brand / content settings consumed by the templates.
+# (repo_url has NO trailing slash — derived URLs append their own path.)
+townsuite:
+  repo_url: https://github.com/TownSuite-DevGroup/TownSuite.MsiCreator
+  accent: "#00578E"
+  version: v26.3.0
+  releases: "10 releases"
+
+# baseurl is injected at build time by the GitHub Pages workflow
+# (--baseurl "${{ steps.pages.outputs.base_path }}") so project-page
+# asset URLs resolve correctly. Leave blank for local serving.
+baseurl: ""
+url: ""
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - README.md

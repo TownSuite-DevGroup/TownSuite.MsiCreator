@@ -1,0 +1,38 @@
+/* Base reset + brand styles ported from the Claude Design prototype. */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { text-decoration: none; }
+pre { margin: 0; }
+
+@keyframes ts-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-9px); }
+}
+
+/* Hover states (the prototype expressed these via a custom style-hover attribute).
+   !important is required to win over the inline base styles. */
+.nav-link:hover     { color: #00578E !important; }
+.btn-gh:hover       { background: #1c3b54 !important; }
+.btn-primary:hover  { filter: brightness(1.06); }
+.btn-secondary:hover{ border-color: #6B95BE !important; }
+.copy-btn:hover     { background: rgba(255,255,255,0.08) !important; }
+.copy-btn-abs:hover { background: rgba(255,255,255,0.12) !important; }
+.foot-link:hover    { color: #ffffff !important; }
+
+@media (max-width: 960px) {
+  #hero        { grid-template-columns: 1fr !important; gap: 40px !important; padding-top: 64px !important; padding-bottom: 64px !important; }
+  #nav-links   { display: none !important; }
+  #feat-grid   { grid-template-columns: 1fr !important; }
+  #install-grid{ grid-template-columns: 1fr !important; }
+  #hero-h1     { font-size: 46px !important; }
+}
+@media (max-width: 560px) {
+  #hero-h1 { font-size: 35px !important; }
+  .ts-sec  { padding-top: 60px !important; padding-bottom: 60px !important; }
+}
