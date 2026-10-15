@@ -22,6 +22,8 @@ jobs:
       uses: microsoft/setup-msbuild@v2
     - name: Build
       run: dotnet build TownSuite.MsiCreator.sln -c Release
+    - name: Test
+      run: dotnet test TownSuite.MsiCreator.Tests/TownSuite.MsiCreator.Tests.csproj -c Release --no-build
 
     - name: Archive net8.0 artifacts
       uses: actions/upload-artifact@v4

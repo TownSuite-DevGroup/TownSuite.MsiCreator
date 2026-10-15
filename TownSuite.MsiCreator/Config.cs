@@ -14,6 +14,8 @@ namespace TownSuite.MsiCreator
         public string ProductVersion { get; set; } = string.Empty;
         public string SrcBinDirectory { get; set; } = string.Empty;
         public string SrcZip { get; set; } = string.Empty;
+        /// <summary>-Src / -SrcPath: a folder, .zip, .tar.zst, .tar.gz or .tar.</summary>
+        public string Src { get; set; } = string.Empty;
         public string OutputDirectory { get; set; } = string.Empty;
         public string MainExecutable { get; set; } = string.Empty;
         public string ProductGuid { get; set; } = string.Empty;
@@ -39,6 +41,17 @@ namespace TownSuite.MsiCreator
 
 
 
+        /// <summary>
+        /// The build to package. -Src wins, then -SrcZip (which beat -SrcBinDirectory before -Src existed),
+        /// then -SrcBinDirectory.
+        /// </summary>
+        public string SourcePath()
+        {
+            if (!string.IsNullOrWhiteSpace(Src)) return Src;
+            if (!string.IsNullOrWhiteSpace(SrcZip)) return SrcZip;
+            return SrcBinDirectory;
+        }
+
         public string InstallScopeToString()
         {
             return Scope.ToString();
@@ -60,8 +73,8 @@ namespace TownSuite.MsiCreator
             if (string.IsNullOrWhiteSpace(ProductVersion))
                 missingFields.Add("ProductVersion");
 
-            if (string.IsNullOrWhiteSpace(SrcBinDirectory) && string.IsNullOrWhiteSpace(SrcZip))
-                missingFields.Add("SrcBinDirectory or SrcZip");
+            if (string.IsNullOrWhiteSpace(SourcePath()))
+                missingFields.Add("Src (or SrcZip / SrcBinDirectory)");
 
             if (string.IsNullOrWhiteSpace(OutputDirectory))
                 missingFields.Add("OutputDirectory");
