@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+		<PackageReference Include="NUnit" Version="4.2.2" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+		<PackageReference Include="ZstdSharp.Port" Version="0.8.8" />
+	</ItemGroup>
+
+	<!-- SourceResolver and TarReader have no WiX dependency, so they are compiled in directly and tested on any OS. -->
+	<ItemGroup>
+		<Compile Include="..\TownSuite.MsiCreator\SourceResolver.cs" Link="SourceResolver.cs" />
+		<Compile Include="..\TownSuite.MsiCreator\TarReader.cs" Link="TarReader.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="TestFiles\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+</Project>

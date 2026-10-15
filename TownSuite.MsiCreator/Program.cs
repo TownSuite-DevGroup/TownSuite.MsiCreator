@@ -35,6 +35,11 @@ class Program
             {
                 config.ProductVersion = args[i + 1];
             }
+            else if (string.Equals(args[i], "-Src", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(args[i], "-SrcPath", StringComparison.OrdinalIgnoreCase))
+            {
+                config.Src = args[i + 1];
+            }
             else if (string.Equals(args[i], "-SrcZip", StringComparison.OrdinalIgnoreCase))
             {
                 config.SrcZip = args[i + 1];
@@ -146,16 +151,12 @@ class Program
             Environment.Exit(1);
         }
 
-        try
+        // -Src, -SrcZip and -SrcBinDirectory all name the build to package: a folder, a .zip, or a
+        // .tar.zst / .tar.gz / .tar archive. An archive is extracted to a temporary folder that is removed
+        // afterwards; a folder is used in place and never deleted.
+        using (var source = SourceResolver.Resolve(config.SourcePath(), config.MainExecutable))
         {
-            if (!String.IsNullOrWhiteSpace(config.SrcZip) && System.IO.File.Exists(config.SrcZip))
-            {
-                // extract the zip to a temporary directory and set the srcBinDirectory to that directory
-                var tempDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-                System.IO.Directory.CreateDirectory(tempDir);
-                System.IO.Compression.ZipFile.ExtractToDirectory(config.SrcZip, tempDir);
-                config.SrcBinDirectory = tempDir;
-            }
+            config.SrcBinDirectory = source.Directory;
 
             if (config.OutputType == "exe")
             {
@@ -168,31 +169,18 @@ class Program
                 msiBuilder.Build();
             }
         }
-        finally
-        {
-            // Clean up temporary directory if it was created
-            if (!string.IsNullOrWhiteSpace(config.SrcZip) && System.IO.Directory.Exists(config.SrcBinDirectory))
-            {
-                try
-                {
-                    System.IO.Directory.Delete(config.SrcBinDirectory, true);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error cleaning up temporary directory: {ex.Message}");
-                }
-            }
-        }
     }
 
     static void PrintHelp()
     {
         Console.WriteLine("Usage: MsiCreator.exe -CompanyName <CompanyName> -Product <ProductName> -Version <ProductVersion> -SrcBinDirectory <SourceBinaryDirectory> -OutputDirectory <OutputDirectory> -MainExecutable <MainExecutablePath> -ProductGuid <ProductGuid> [-Platform <x64|x86|arm64>] [-LicenseFile <LicenseFilePath>]");
         Console.WriteLine("Optional parameters:");
-        Console.WriteLine("  -SrcZip <SourceZipPath> : Path to a zip file containing the source binaries. If provided, it will extract to a temporary directory.");
+        Console.WriteLine("  -Src <Path> : The build to package: a folder, or a .zip, .tar.zst, .tar.gz or .tar archive (detected from its content).");
+        Console.WriteLine("                An archive is extracted to a temporary folder; a single top-level folder is used as the root when the main executable is inside it.");
+        Console.WriteLine("  -SrcZip <Path> : Same as -Src (kept for existing callers).");
         Console.WriteLine("  -Platform <x64|x86|arm64> : Specify the platform for the MSI (default is x64).");
         Console.WriteLine("  -LicenseFile <LicenseFilePath> : Path to the license file (default is 'LicenseTemplate.rtf').");
-        Console.WriteLine("  -OutputType <msi|wxs> : Specify the output type (default is 'msi').");
+        Console.WriteLine("  -OutputType <msi|wxs|exe> : Specify the output type (default is 'msi'; exe builds an NSIS installer).");
         Console.WriteLine("  -UrlInfoAbout <URL> : URL for the 'Info About' link in the Control Panel.");
         Console.WriteLine("  -UrlUpdateInfo <URL> : URL for the 'Update Info' link in the Control Panel.");
         Console.WriteLine("  -IsService : Set this flag if the application is a Windows Service.");

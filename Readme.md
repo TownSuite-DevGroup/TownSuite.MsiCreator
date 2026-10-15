@@ -31,7 +31,11 @@ Without placeholders example
 .\TownSuite.MsiCreator.exe -CompanyName "Example" -Product "Example" -Version "1.0.0" -SrcBinDirectory "C:\\Source\Directory\With\Your\Exe" -OutputDirectory "C:\\OutputDirectory" -MainExecutable "Example.exe" -ProductGuid "ee85df4f-6f19-4d3a-85bd-91b94657650f" -Platform "x64" -UrlInfoAbout "https://example.com" -UrlUpdateInfo "https://example.com"
 ```
 
-A zip file, -SrcZip, can be used as a src instead of a -SrcBinDirectory.
+`-Src` takes the build to package as a folder, a `.zip`, or a tar archive compressed with Zstandard (`.tar.zst`), gzip (`.tar.gz`) or not at all (`.tar`). The format is read from the file's content, not its name. `-SrcZip` and `-SrcBinDirectory` still work and mean the same thing.
+
+An archive is extracted to a temporary folder that is deleted afterwards; a folder is used in place and never deleted. When the source holds just one folder and `-MainExecutable` is inside it, as with TownSuite release packages whose files sit under `x64\`, that folder is used as the root.
+
+Tar archives may be ustar, GNU or pax format (what GNU tar, bsdtar and .NET write). Entries that would land outside the extraction folder, links, and device files are rejected.
 
 NSIS exe with main executable
 
