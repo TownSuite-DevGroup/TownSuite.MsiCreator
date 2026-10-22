@@ -43,6 +43,8 @@ NSIS exe with main executable
 .\TownSuite.MsiCreator.exe -OutputType "exe" -CompanyName "<CompanyName>" -Product "<Product>" -Version "<Version>" -SrcBinDirectory "<SrcBinDirectory>" -OutputDirectory "<OutputDirectory>" -MainExecutable "<MainExecutable>" -ProductGuid "<ProductGuid>" -Platform "x64"
 ```
 
+The exe installer and its uninstaller close a running copy of the product before they replace or remove any file, so an install over an older version, or an uninstall from Add/Remove Programs, works while the app is open. The user is asked first; a silent run (`/S`) closes it without asking. The app gets a close request and a few seconds to exit on its own before it is killed. `-CloseProcesses "tsintel.exe;other.exe"` names further executables that ship in the same folder and hold its files open. Exit code 1 means the user cancelled at that prompt, 3 that a process could not be closed.
+
 
 
 # MSI Info
