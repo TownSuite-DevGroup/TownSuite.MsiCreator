@@ -26,6 +26,11 @@ namespace TownSuite.MsiCreator
         public string UrlUpdateInfo { get; set; } = string.Empty;
         public bool IsService { get; set; } = false;
         public bool SideBySide { get; set; } = false;
+        /// <summary>
+        /// -CloseProcesses: image names besides the main executable that the NSIS installer and
+        /// uninstaller close before touching the install folder (a bundled CLI, say).
+        /// </summary>
+        public List<string> CloseProcesses { get; } = new List<string>();
 
 #if NET8_0_OR_GREATER
         /// <summary>
