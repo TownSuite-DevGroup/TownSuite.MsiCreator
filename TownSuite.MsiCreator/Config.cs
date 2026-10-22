@@ -31,6 +31,11 @@ namespace TownSuite.MsiCreator
         /// uninstaller close before touching the install folder (a bundled CLI, say).
         /// </summary>
         public List<string> CloseProcesses { get; } = new List<string>();
+        /// <summary>
+        /// -CloseOtherSessions: also kill copies running in other users' sessions (they cannot be asked
+        /// to close). Off by default: those stop the install with exit code 3 instead.
+        /// </summary>
+        public bool CloseOtherSessions { get; set; } = false;
 
 #if NET8_0_OR_GREATER
         /// <summary>

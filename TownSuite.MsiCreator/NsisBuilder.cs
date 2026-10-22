@@ -35,6 +35,8 @@ namespace TownSuite.MsiCreator
             var nsi = BuildNsisScript(scriptPath, outFilePath, installDirVariable);
 
             File.WriteAllText(scriptPath, nsi, Encoding.UTF8);
+            // The helper the installer carries to find and close the running app (see NsisRunningProcesses).
+            File.WriteAllText(CloseScriptPath(), NsisRunningProcesses.Script, Encoding.UTF8);
 
             string makensisExe = FindMakensis();
 
@@ -90,6 +92,9 @@ namespace TownSuite.MsiCreator
             else
                 return $"$PROGRAMFILES\\$Company\\$Product{versionSuffix}";
         }
+
+        private string CloseScriptPath() =>
+            Path.GetFullPath(Path.Combine(_config.OutputDirectory, NsisRunningProcesses.ScriptFileName));
 
         private string BuildNsisScript(string scriptPath, string outExePath, string installDirVariable)
         {
@@ -161,7 +166,8 @@ namespace TownSuite.MsiCreator
             var closeNames = NsisRunningProcesses.Names(_config.MainExecutable, _config.CloseProcesses);
             var closesRunningApp = !_config.IsService && closeNames.Count > 0;
             if (closesRunningApp)
-                sb.Append(NsisRunningProcesses.Functions(currentUserOnly: isPerUser));
+                sb.Append(NsisRunningProcesses.Functions(CloseScriptPath(), _config.CloseOtherSessions));
+            sb.Append(NsisRunningProcesses.LeftoverReportFunction());
 
             // Installer section
             sb.AppendLine("Section \"Install\"");
@@ -275,7 +281,10 @@ namespace TownSuite.MsiCreator
                 sb.AppendLine();
             }
 
-            sb.AppendLine("  RMDir /r /REBOOTOK \"$INSTDIR\"");
+            // No /REBOOTOK: a delete queued for the next reboot is by path, so it would also wipe a
+            // reinstall done before that reboot. A locked file stays and is reported instead.
+            sb.AppendLine("  RMDir /r \"$INSTDIR\"");
+            sb.AppendLine("  Call un.ReportLeftovers");
             sb.AppendLine();
 
             sb.AppendLine($"  ; Remove Add/Remove Programs registration");
