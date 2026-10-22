@@ -37,9 +37,11 @@ namespace TownSuite.MsiCreator
         public const string ScriptFileName = "CloseRunningApp.ps1";
 
         /// <summary>
-        /// The helper. Mode query exits 0 (none), 1 (running in this session), 2 (in other sessions
-        /// only) or 3 (both). Mode close exits 0 when every targeted copy is gone and 3 when one
-        /// survived even a kill. Win32_Process is used rather than Get-Process because the 32-bit
+        /// The helper. Mode query exits 10 (none), 11 (running in this session), 12 (in other sessions
+        /// only) or 13 (both). Mode close exits 10 when every targeted copy is gone and 13 when one
+        /// survived even a kill. The codes sit above PowerShell's own failure code (1, for a script a
+        /// group policy refuses to run), so a helper that could not run is told apart from an answer
+        /// and the installer carries on as before. Win32_Process is used rather than Get-Process because the 32-bit
         /// PowerShell the installer starts cannot read a 64-bit process's path any other way, and
         /// because it reports the session id. Another user's process shows no path to a non-admin,
         /// which is right: a per-user install never shares files with another user.
@@ -48,10 +50,11 @@ namespace TownSuite.MsiCreator
         {
             "# Finds the running copies of an executable under the install folder and closes them.",
             "# Written by TownSuite.MsiCreator; the installer carries it in $PLUGINSDIR.",
-            "# -Mode query : exit 0 none, 1 running in this session, 2 in other sessions only, 3 both.",
+            "# -Mode query : exit 10 none, 11 running in this session, 12 in other sessions only, 13 both.",
             "# -Mode close : close this session's copies (every session's with -Others 1): a close request",
             "#               first, then a kill for whatever is still there after -WaitSeconds.",
-            "#               Exit 0 when they are gone, 3 when one survived.",
+            "#               Exit 10 when they are gone, 13 when one survived.",
+            "# Codes start at 10 so PowerShell's own exit 1 (script refused to run) is never read as an answer.",
             "# Cmdlets and core string methods only, so it also runs under Constrained Language Mode.",
             "param([string]$Mode, [string]$Dir, [string]$Name, [int]$Others = 0, [int]$WaitSeconds = 15)",
             "$ErrorActionPreference = 'SilentlyContinue'",
@@ -64,13 +67,13 @@ namespace TownSuite.MsiCreator
             "$found = Find",
             "if ($Mode -eq 'query') {",
             "  $mine = @($found | Where-Object { $_.SessionId -eq $session }).Count",
-            "  $code = 0",
+            "  $code = 10",
             "  if ($mine -gt 0) { $code += 1 }",
             "  if ($found.Count -gt $mine) { $code += 2 }",
             "  exit $code",
             "}",
             "$targets = @($found | Where-Object { $Others -eq 1 -or $_.SessionId -eq $session })",
-            "if ($targets.Count -eq 0) { exit 0 }",
+            "if ($targets.Count -eq 0) { exit 10 }",
             "$ids = @($targets | ForEach-Object { $_.ProcessId })",
             "# Ask each one to close. taskkill reports 0 only when it could deliver the request (a window",
             "# in this session); a console process or another session's window goes straight to the kill.",
@@ -91,8 +94,8 @@ namespace TownSuite.MsiCreator
             "  Start-Sleep -Seconds 1",
             "  $left = @(Find | Where-Object { $ids -contains $_.ProcessId } | ForEach-Object { $_.ProcessId })",
             "}",
-            "if ($left.Count -gt 0) { exit 3 }",
-            "exit 0",
+            "if ($left.Count -gt 0) { exit 13 }",
+            "exit 10",
             ""
         });
 
@@ -186,19 +189,21 @@ namespace TownSuite.MsiCreator
             sb.AppendLine("  Push $1");
             sb.AppendLine("  Push $2");
             sb.AppendLine($"  nsExec::ExecToStack '{powershell} -Mode query -Dir \"$INSTDIR\" -Name \"$0\"'");
-            sb.AppendLine("  Pop $1 ; exit code: 0 none, 1 this session, 2 other sessions only, 3 both");
+            sb.AppendLine("  Pop $1 ; exit code: 10 none, 11 this session, 12 other sessions only, 13 both");
             sb.AppendLine("  Pop $2");
-            sb.AppendLine("  ${If} $1 == \"error\"");
-            sb.AppendLine("  ${OrIf} $1 == \"timeout\"");
-            sb.AppendLine("    DetailPrint \"Could not check whether $0 is running; continuing.\"");
+            sb.AppendLine("  ${If} $1 == 10");
             sb.AppendLine("    Goto done");
             sb.AppendLine("  ${EndIf}");
-            sb.AppendLine("  ${If} $1 == 0");
+            sb.AppendLine("  ; Anything but an answer (nsExec \"error\", PowerShell's own 1 for a refused script, ...)");
+            sb.AppendLine("  ${If} $1 != 11");
+            sb.AppendLine("  ${AndIf} $1 != 12");
+            sb.AppendLine("  ${AndIf} $1 != 13");
+            sb.AppendLine("    DetailPrint \"Could not check whether $0 is running ($1); continuing.\"");
             sb.AppendLine("    Goto done");
             sb.AppendLine("  ${EndIf}");
             if (!closeOtherSessions)
             {
-                sb.AppendLine("  ${If} $1 >= 2");
+                sb.AppendLine("  ${If} $1 != 11");
                 sb.AppendLine("    MessageBox MB_OK|MB_ICONSTOP \"$(^Name) is open in another user's session ($0). Ask them to close it, then try again.\" /SD IDOK");
                 sb.AppendLine("    SetErrorLevel 3");
                 sb.AppendLine("    Abort \"$(^Name) is open in another user's session ($0).\"");
@@ -209,9 +214,9 @@ namespace TownSuite.MsiCreator
             sb.AppendLine("    Abort \"$(^Name) is still running. Close it and try again.\"");
             sb.AppendLine("  DetailPrint \"Closing $0\"");
             sb.AppendLine($"  nsExec::ExecToStack '{powershell} -Mode close -Dir \"$INSTDIR\" -Name \"$0\" -Others {others} -WaitSeconds {GracefulCloseSeconds}'");
-            sb.AppendLine("  Pop $1 ; exit code: 0 closed, 3 still running");
+            sb.AppendLine("  Pop $1 ; exit code: 10 closed, 13 still running; anything else is treated as still running");
             sb.AppendLine("  Pop $2");
-            sb.AppendLine("  ${If} $1 != 0");
+            sb.AppendLine("  ${If} $1 != 10");
             sb.AppendLine("    MessageBox MB_OK|MB_ICONSTOP \"$(^Name) could not be closed ($0). End it in Task Manager and try again.\" /SD IDOK");
             sb.AppendLine("    SetErrorLevel 3");
             sb.AppendLine("    Abort \"$(^Name) could not be closed ($0).\"");

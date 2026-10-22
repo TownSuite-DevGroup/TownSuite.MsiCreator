@@ -118,8 +118,27 @@ namespace TownSuite.MsiCreator.Tests
         {
             var functions = NsisRunningProcesses.Functions(ScriptPath, closeOtherSessions: false);
 
-            Assert.That(functions, Does.Contain("$1 == \"error\""));
-            Assert.That(functions, Does.Contain("Could not check whether $0 is running; continuing."));
+            // Only 10..13 are answers; nsExec's "error" and PowerShell's own 1 (script refused) are not.
+            Assert.That(functions, Does.Contain("${If} $1 == 10"));
+            Assert.That(functions, Does.Contain("${If} $1 != 11"));
+            Assert.That(functions, Does.Contain("${AndIf} $1 != 12"));
+            Assert.That(functions, Does.Contain("${AndIf} $1 != 13"));
+            Assert.That(functions, Does.Contain("Could not check whether $0 is running ($1); continuing."));
+            Assert.That(functions, Does.Not.Contain("$1 == 0"));
+            Assert.That(functions, Does.Not.Contain("$1 == 1\n"));
+        }
+
+        [Test]
+        public void Script_ExitCodesSitAbovePowerShellsOwnFailureCode()
+        {
+            var script = NsisRunningProcesses.Script;
+
+            Assert.That(script, Does.Contain("$code = 10"));
+            Assert.That(script, Does.Contain("if ($targets.Count -eq 0) { exit 10 }"));
+            Assert.That(script, Does.Contain("if ($left.Count -gt 0) { exit 13 }"));
+            Assert.That(script, Does.Contain("\r\nexit 10\r\n"));
+            Assert.That(script, Does.Not.Contain("exit 0"));
+            Assert.That(script, Does.Not.Contain("exit 3"));
         }
 
         [Test]
