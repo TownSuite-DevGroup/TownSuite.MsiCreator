@@ -108,6 +108,14 @@ class Program
             {
                 config.SideBySide = true;
             }
+            else if (string.Equals(args[i], "-CloseProcesses", StringComparison.OrdinalIgnoreCase))
+            {
+                config.CloseProcesses.AddRange(NsisRunningProcesses.ParseList(args[i + 1]));
+            }
+            else if (string.Equals(args[i], "-CloseOtherSessions", StringComparison.OrdinalIgnoreCase))
+            {
+                config.CloseOtherSessions = true;
+            }
             else if (string.Equals(args[i], "-InstallScope", StringComparison.OrdinalIgnoreCase))
             {
                 string scope = args[i + 1].ToLower();
@@ -186,6 +194,9 @@ class Program
         Console.WriteLine("  -IsService : Set this flag if the application is a Windows Service.");
         Console.WriteLine("  -SideBySide : Enable side-by-side installation. Each version installs to its own directory and can be uninstalled independently.");
         Console.WriteLine("  -InstallScope <perUser|perMachine|perUserOrMachine> : Specify the install scope (default is 'perUserOrMachine').");
+        Console.WriteLine("  -CloseProcesses <a.exe;b.exe> : Extra executables the NSIS installer and uninstaller close before replacing or removing files.");
+        Console.WriteLine("                The main executable is always closed; the user is asked first unless the installer runs silently (/S).");
+        Console.WriteLine("  -CloseOtherSessions : Also kill copies running in other users' sessions (for unattended pushes). Off by default: they stop the install with exit code 3.");
         Console.WriteLine("  -Help or --help : Show this help message.");
         Console.WriteLine("Example: MsiCreator.exe -CompanyName 'My Company' -Product 'My Product' -Version '1.0.0' -SrcBinDirectory 'C:\\Path\\To\\Binaries' -OutputDirectory 'C:\\Path\\To\\Output' -MainExecutable 'MyProduct.exe' -ProductGuid '{GUID}'");
     }

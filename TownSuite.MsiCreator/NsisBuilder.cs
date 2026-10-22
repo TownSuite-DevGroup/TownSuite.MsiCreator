@@ -35,6 +35,8 @@ namespace TownSuite.MsiCreator
             var nsi = BuildNsisScript(scriptPath, outFilePath, installDirVariable);
 
             File.WriteAllText(scriptPath, nsi, Encoding.UTF8);
+            // The helper the installer carries to find and close the running app (see NsisRunningProcesses).
+            File.WriteAllText(CloseScriptPath(), NsisRunningProcesses.Script, Encoding.UTF8);
 
             string makensisExe = FindMakensis();
 
@@ -91,6 +93,9 @@ namespace TownSuite.MsiCreator
                 return $"$PROGRAMFILES\\$Company\\$Product{versionSuffix}";
         }
 
+        private string CloseScriptPath() =>
+            Path.GetFullPath(Path.Combine(_config.OutputDirectory, NsisRunningProcesses.ScriptFileName));
+
         private string BuildNsisScript(string scriptPath, string outExePath, string installDirVariable)
         {
             var srcRoot = Path.GetFullPath(_config.SrcBinDirectory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
@@ -117,6 +122,7 @@ namespace TownSuite.MsiCreator
 
             // Modern UI 2
             sb.AppendLine("!include \"MUI2.nsh\"");
+            sb.AppendLine("!include \"LogicLib.nsh\"");
             sb.AppendLine();
 
             sb.AppendLine($"Name \"{EscapeForNsisString(_config.ProductName)}\"");
@@ -154,8 +160,22 @@ namespace TownSuite.MsiCreator
             sb.AppendLine("Var STARTMENU_DIR");
             sb.AppendLine();
 
+            // A running copy of the product holds its exe and loaded DLLs open. NSIS would skip every
+            // locked file without a word, so the install and uninstall sections close it first. A service
+            // is stopped through sc.exe below instead.
+            var closeNames = NsisRunningProcesses.Names(_config.MainExecutable, _config.CloseProcesses);
+            var closesRunningApp = !_config.IsService && closeNames.Count > 0;
+            if (closesRunningApp)
+                sb.Append(NsisRunningProcesses.Functions(CloseScriptPath(), _config.CloseOtherSessions));
+            sb.Append(NsisRunningProcesses.LeftoverReportFunction());
+
             // Installer section
             sb.AppendLine("Section \"Install\"");
+            if (closesRunningApp)
+            {
+                sb.Append(NsisRunningProcesses.CloseCalls(closeNames, uninstaller: false));
+                sb.AppendLine();
+            }
             sb.AppendLine("  SetOutPath \"$INSTDIR\"");
 
             // Copy files recursively from source
@@ -214,7 +234,11 @@ namespace TownSuite.MsiCreator
             sb.AppendLine($"  ; Register in Add/Remove Programs ({regRoot})");
             // Use helper to guarantee correct four-parameter formatting and avoid accidental concatenation that produces 5 tokens.
             AppendWriteRegStr(sb, regRoot, uninstallRegKey, "DisplayName", arpDisplayName);
-            AppendWriteRegStr(sb, regRoot, uninstallRegKey, "UninstallString", "$INSTDIR\\Uninstall.exe");
+            // Quoted: Settings > Installed apps splits an unquoted UninstallString at the first space and
+            // opens (or fails to find) "C:\Users\x\AppData\Local\TownSuite" instead of running the
+            // uninstaller. QuietUninstallString lets Windows and tooling uninstall without the UI.
+            AppendWriteRegStr(sb, regRoot, uninstallRegKey, "UninstallString", "\"$INSTDIR\\Uninstall.exe\"");
+            AppendWriteRegStr(sb, regRoot, uninstallRegKey, "QuietUninstallString", "\"$INSTDIR\\Uninstall.exe\" /S");
             AppendWriteRegStr(sb, regRoot, uninstallRegKey, "DisplayVersion", _config.ProductVersion);
             AppendWriteRegStr(sb, regRoot, uninstallRegKey, "Publisher", _config.CompanyName);
             AppendWriteRegStr(sb, regRoot, uninstallRegKey, "InstallLocation", "$INSTDIR");
@@ -233,6 +257,11 @@ namespace TownSuite.MsiCreator
 
             // Uninstall section
             sb.AppendLine("Section \"Uninstall\"");
+            if (closesRunningApp)
+            {
+                sb.Append(NsisRunningProcesses.CloseCalls(closeNames, uninstaller: true));
+                sb.AppendLine();
+            }
             if (_config.IsService)
             {
                 var serviceName = _config.SideBySide
@@ -252,7 +281,10 @@ namespace TownSuite.MsiCreator
                 sb.AppendLine();
             }
 
+            // No /REBOOTOK: a delete queued for the next reboot is by path, so it would also wipe a
+            // reinstall done before that reboot. A locked file stays and is reported instead.
             sb.AppendLine("  RMDir /r \"$INSTDIR\"");
+            sb.AppendLine("  Call un.ReportLeftovers");
             sb.AppendLine();
 
             sb.AppendLine($"  ; Remove Add/Remove Programs registration");
@@ -287,8 +319,8 @@ namespace TownSuite.MsiCreator
         private static string EscapeForNsisString(string input)
         {
             if (string.IsNullOrEmpty(input)) return input;
-            // Only escape double quotes for safe embedding inside NSIS quoted strings.
-            return input.Replace("\"", "\\\"");
+            // A double quote inside an NSIS quoted string is written $\" (a backslash alone is not an escape).
+            return input.Replace("\"", "$\\\"");
         }
 
         private string FindMakensis()

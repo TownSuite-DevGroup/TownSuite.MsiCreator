@@ -12,10 +12,11 @@
 		<PackageReference Include="ZstdSharp.Port" Version="0.8.8" />
 	</ItemGroup>
 
-	<!-- SourceResolver and TarReader have no WiX dependency, so they are compiled in directly and tested on any OS. -->
+	<!-- SourceResolver, TarReader and NsisRunningProcesses have no WiX dependency, so they are compiled in directly and tested on any OS. -->
 	<ItemGroup>
 		<Compile Include="..\TownSuite.MsiCreator\SourceResolver.cs" Link="SourceResolver.cs" />
 		<Compile Include="..\TownSuite.MsiCreator\TarReader.cs" Link="TarReader.cs" />
+		<Compile Include="..\TownSuite.MsiCreator\NsisRunningProcesses.cs" Link="NsisRunningProcesses.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
