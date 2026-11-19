@@ -71,7 +71,11 @@ namespace TownSuite.MsiCreator
                 )
             )
             {
-                Id = Guid.NewGuid().ToString(),
+                // WixSharp names the embedded cabinet "<Id>.cab", and Windows Installer expects that name to
+                // be an Identifier: a letter or underscore first, then letters, digits, underscores and
+                // periods. A bare GUID is not one, and some of them fail light.exe's validation with
+                // "ICE03: Bad cabinet syntax/name; Table: Media, Column: Cabinet".
+                Id = "ts_" + Guid.NewGuid().ToString("N"),
                 OutDir = _config.OutputDirectory,
                 GUID = Guid.Parse(_config.ProductGuid),
                 Version = Version.Parse(_config.ProductVersion),
